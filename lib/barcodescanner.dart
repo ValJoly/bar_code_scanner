@@ -91,12 +91,12 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         RaisedButton(
                             onPressed: () => scanBarcodeNormal(),
                             child: Text("Start barcode scan")),
-                        RaisedButton(
+                        /*RaisedButton(
                             onPressed: () => scanQR(),
                             child: Text("Start QR scan")),
                         RaisedButton(
                             onPressed: () => startBarcodeScanStream(),
-                            child: Text("Start barcode scan stream")),
+                            child: Text("Start barcode scan stream")),*/
                         Text('Scan result : $_scanBarcode\n',
                             style: TextStyle(fontSize: 20))
                       ]));

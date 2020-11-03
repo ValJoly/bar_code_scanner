@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-
+import 'getInfo.dart';
 
 class Book extends StatefulWidget {
 
   String _ISBN = "Unknown";
-
   Book(String isbn) {
     _ISBN = isbn;
+
   }
+
 
   @override
   State<StatefulWidget> createState() {
@@ -20,6 +21,8 @@ class _Book extends State<Book> {
   String _ISBN = "Unknown";
   _Book(String isbn) {
     _ISBN = isbn;
+    book currentScan = new book(_ISBN);
+    currentScan.getInfo();
   }
 
   @override

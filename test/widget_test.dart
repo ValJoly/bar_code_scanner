@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/MyApp.dart';
+import '../lib/myapp.dart';
 
 import 'package:bar_code_scanner/main.dart';
 
