@@ -6,7 +6,6 @@ class Book extends StatefulWidget {
   String _ISBN = "Unknown";
   Book(String isbn) {
     _ISBN = isbn;
-
   }
 
 
@@ -15,6 +14,8 @@ class Book extends StatefulWidget {
     return new _Book(_ISBN);
   }
 }
+
+
 
 class _Book extends State<Book> {
 

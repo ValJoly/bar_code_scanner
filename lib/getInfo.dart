@@ -17,7 +17,7 @@ class book {
     isbn = ISBN;
   }
 
-  void getInfo() async{
+  void getInfo() async {
 
     var response = await http.get(url + isbn + '.json');
 
@@ -26,8 +26,14 @@ class book {
       //Map<String, dynamic> book = convert.jsonDecode(response.body);
 
       var jsonResponse = convert.jsonDecode(response.body);
-      var title = jsonResponse['subtitle'];
-      print('Title of this book : $title.');
+
+      //var title = jsonResponse['title'];
+      //print('Title of this book : $title.');
+
+      print("Titre: "+jsonResponse['title']);
+      print("Date de publication: "+jsonResponse['publish_date']);
+      print("Edition: "+(jsonResponse['publishers'])[0]);
+
     } else {
       print('Request failed with status: ${response.statusCode}.');
     }

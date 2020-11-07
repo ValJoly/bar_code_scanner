@@ -1,14 +1,19 @@
 import 'dart:async';
 
+import 'package:bar_code_scanner/widgetsPerso/textePerso.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'book.dart';
+import 'livre.dart';
+import 'widgetsPerso/cardLivre.dart';
+
 
 class BarCodeScanner extends StatefulWidget {
   @override
   _BarCodeScannerState createState() => _BarCodeScannerState();
 }
+
 
 class _BarCodeScannerState extends State<BarCodeScanner> {
   String _scanBarcode = 'Unknown';
@@ -16,7 +21,9 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   @override
   void initState() {
     super.initState();
+    print("hello");
   }
+
 
   startBarcodeScanStream() async {
     FlutterBarcodeScanner.getBarcodeStreamReceiver(
@@ -24,27 +31,6 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         .listen((barcode) => print(barcode));
   }
 
-  Future<void> scanQR() async {
-    String barcodeScanRes;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          "#ff6666", "Cancel", true, ScanMode.QR);
-      print(barcodeScanRes);
-    } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _scanBarcode = barcodeScanRes;
-
-    });
-  }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> scanBarcodeNormal() async {
@@ -68,7 +54,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
-            return Book(_scanBarcode);
+            return Livre(_scanBarcode);
           },
         ),
         //'/GamePage'
@@ -76,30 +62,128 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     });
   }
 
+  Future<Null> getHelp() async{
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            title: new Text("Aide"),
+            content: new Text("Bienvenue!\n\n\tSur cette page vous voyez tous les livres de votre biblihothèque. Pour en ajouter, vous devez cliquer sur le petit bouton plus en bas à droite."),
+            actions: <Widget> [
+              new FlatButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                  },
+                  child: new Text("OK")
+              ),
+            ],
+          );
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    int selectedIndex = 0;
+
     return MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(title: const Text('Barcode scan')),
+        debugShowCheckedModeBanner: false,
+        theme: new ThemeData(
+            primarySwatch: Colors.green
+        ),
+        home: new Scaffold(
+            bottomNavigationBar: BottomNavigationBar(
+              onTap: (int index){
+                setState(() {
+                  selectedIndex = index;
+                });
+              },
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Bibliothèque',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite),
+                  label: 'Favoris',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.star),
+                  label: 'Envies',
+                ),
+              ],
+            ),
+            appBar: AppBar(
+              title: const Text('Ma Bibliothèque'),
+              elevation: 10,
+              actions: [
+                new IconButton(icon: new Icon(Icons.help), onPressed: getHelp),
+              ],
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // pourquoi pas changer sa position
+            floatingActionButton: new FloatingActionButton(
+              onPressed: () => scanBarcodeNormal(),
+              elevation: 20.0,
+              tooltip: "Chercher un nouveau livre",
+              child: new Icon(Icons.add),
+            ),
             body: Builder(builder: (BuildContext context) {
-              return Container(
-                  alignment: Alignment.center,
-                  child: Flex(
-                      direction: Axis.vertical,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        RaisedButton(
-                            onPressed: () => scanBarcodeNormal(),
-                            child: Text("Start barcode scan")),
-                        /*RaisedButton(
-                            onPressed: () => scanQR(),
-                            child: Text("Start QR scan")),
-                        RaisedButton(
-                            onPressed: () => startBarcodeScanStream(),
-                            child: Text("Start barcode scan stream")),*/
-                        Text('Scan result : $_scanBarcode\n',
-                            style: TextStyle(fontSize: 20))
-                      ]));
+              return new Container(
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+                  child: new Center(
+                      child: new ListView(
+                        children: <Widget>[
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+                          new Container(height: 7.0,),
+
+                        ]
+                      )
+                  )
+              );
             })));
   }
+
+
 }
