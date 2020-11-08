@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
 import 'livre.dart';
 import 'widgetsPerso/cardLivre.dart';
 
@@ -18,6 +20,9 @@ class BarCodeScanner extends StatefulWidget {
 class _BarCodeScannerState extends State<BarCodeScanner> {
   String _scanBarcode = 'Unknown';
   int selectedIndex = 0;
+  // liste des livres
+  List<Widget> livreList = [];
+
 
   @override
   void initState() {
@@ -50,18 +55,22 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
+    // on se déplace dans le widget "livre"
+    _scanBarcode = barcodeScanRes;
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Livre(_scanBarcode))
+    );
+
+    print("\n\n\n\n\n\n\n\n\n"+"$result");
+
     setState(() {
-      _scanBarcode = barcodeScanRes;
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) {
-            return Livre(_scanBarcode);
-          },
-        ),
-        //'/GamePage'
-      );
+      livreList.add(new CardLivre(result["Titre"], "Info", false));
     });
+
   }
+
+
 
   Future<Null> getHelp() async{
     return showDialog(
@@ -70,7 +79,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         builder: (BuildContext context) {
           return new AlertDialog(
             title: new Text("Aide"),
-            content: new Text("Parcourez vos livres à travers les trois volets. Pour en ajouter, cliquez sur le bouton en bas à droite"),
+            content: new Text("Parcourez vos livres à travers les trois volets. Pour en ajouter, cliquez sur le bouton en bas à droite. Pour voir les détails ou le supprimer, maintenez appuyé votre doigt sur le livre."),
             actions: <Widget> [
               new FlatButton(
                   onPressed: (){
@@ -87,21 +96,41 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   @override
   Widget build(BuildContext context) {
 
+    print("Début build barcodeScanner");
+
+
+    // listes des widgets de la bottomBar
     List<Widget> widgetList = <Widget>[
       new Container(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: new Center(
-          child: new ListView(
-            children: <Widget>[
-              new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-              new Container(height: 7.0,),
-              new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-              new Container(height: 7.0,),
-              new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-              new Container(height: 7.0,),
-            ]
+          child: ListView.builder(
+            itemCount: livreList.length,
+            itemBuilder: (context, index){
+              return new FocusedMenuHolder(
+                menuItemExtent: 60.0,
+                onPressed: (){},
+                menuItems: <FocusedMenuItem> [
+                  new FocusedMenuItem(
+                      title: new Text("Voir les détails"),
+                      onPressed: (){},
+                      trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
+                  ),
+                  new FocusedMenuItem(
+                      title: new Text("Supprimer"),
+                      onPressed: (){
+                        setState(() {
+                          livreList.removeAt(index);
+                        });
+                      },
+                      trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
+                  ),
+                ],
+                child: livreList[index],
+              );
+            },
           )
-        )
+        ),
       ),
       new Center(
         child: new Text("Favoris")
@@ -111,6 +140,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       ),
     ];
 
+
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: new ThemeData(
@@ -118,6 +148,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         ),
         home: new Scaffold(
             bottomNavigationBar: BottomNavigationBar(
+              currentIndex: selectedIndex,
               onTap: (int index) {
                 setState(() {
                   selectedIndex = index;

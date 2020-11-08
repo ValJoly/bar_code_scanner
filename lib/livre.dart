@@ -31,13 +31,13 @@ class _LivreState extends State<Livre>{
   bool ajouterEnvie = false;
 
   // attributs du state
-  String s_titre = "";
-  String s_auteur = "";
-  String s_datePublication = "";
-  String s_editeur = "";
-  String s_ISBN = "";
-  String s_urlImage = "";
-  String s_synopsis = "efzuzqqqqqqqqqqqqqqqqôi ôfuo fffffffffffffffffff  efzfreqgreqkgkslqnvz vlezhvozehvouzev ezfoihzeofhezb foezhfjzefkjze ezfkjzbefkjzFUE EZFKJEBFK EFJEBFKJEZB EFKEJBFKEJBFE EJFBFKEJBFêizjffffff oeajfpufpEAJFOIJJJJJJJJJJJJJJJJJJ 3PRFPEJFO%EIJF%O¨ZE%OFIJEZÖIJF";
+  String s_titre = "Inconnu";
+  String s_auteur = "Inconnu";
+  String s_datePublication = "Inconnue";
+  String s_editeur = "Inconnu";
+  String s_ISBN = "Inconnu";
+  String s_urlImage = "Inconnue";
+  String s_synopsis = "Pas disponible";
 
   // constructeurs du state
   _LivreState(String isbn){
@@ -55,10 +55,11 @@ class _LivreState extends State<Livre>{
   Widget build(BuildContext context) {
     double largeur = MediaQuery.of(context).size.width;
     double hauteur = MediaQuery.of(context).size.height;
+    print("Début du build de livre");
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: !pageChargee ? null :  new FloatingActionButton.extended(
-          label: new Text("Terminer"),
+          label: new Text("Ajouter"),
           splashColor: Colors.white,
           onPressed: terminer,
       ),
@@ -140,7 +141,7 @@ class _LivreState extends State<Livre>{
                   children: [
                     new TextePerso("Synopsis: ", fontWeight: FontWeight.bold, textScaleFactor: 1.2),
                     new Container(height: 5.0,),
-                    new TextePerso(this.s_synopsis)
+                    new TextePerso(""+this.s_synopsis)
                   ],
                 ),
               ),
@@ -153,52 +154,88 @@ class _LivreState extends State<Livre>{
 
   // méthode quand on appuie sur le bouton terminer
   void terminer(){
-    //Navigator.pop(context);
+    var retour = {'Titre': this.s_titre,'Info': this.s_auteur+", paru en "+this.s_datePublication+", "+this.s_editeur};
+    Navigator.pop(context, retour);
+  }
+
+  // alertDialog si jamais le livre n'est pas trouvé
+  Future<Null> pasTrouve() async{
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new AlertDialog(
+            title: new Text("Erreur"),
+            content: new Text("Nous sommes désolés, nous ne trouvons pas le livre que vous cherchez."),
+            actions: <Widget> [
+              new FlatButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: new Text("Revenir au menu principal")
+              ),
+            ],
+          );
+        }
+    );
   }
 
   // méthode récupère les infos du livre via API
   void getInfo() async {
-    //bool repOpenLibrary = false;
+    bool repOpenLibrary = false;
     bool repGoogle = false;
-    //var onpenLibrary = await http.get("https://openlibrary.org/isbn/" + this.s_ISBN + '.json');
+
+    // API GoggleBooks
     var googleBooks = await http.get("https://www.googleapis.com/books/v1/volumes?q=isbn="+this.s_ISBN);
 
-    print("\n\n\n\n\n" + googleBooks.body);
-
+    // replissage des données si possible
     if(googleBooks.statusCode == 200){
+      repGoogle = true;
       var reponse = convert.jsonDecode(googleBooks.body);
-      print(((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString());
       setState(() {
-        this.s_titre = (((reponse["items"])[0])["volumeInfo"])["title"];
-        this.s_auteur = ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString();
-        this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10);
-        this.s_editeur = (((reponse["items"])[0])["volumeInfo"])["publisher"];
-        this.s_synopsis = (((reponse["items"])[0])["volumeInfo"])["description"];
-        pageChargee = true;
+        this.s_titre = (((reponse["items"])[0])["volumeInfo"])["title"].toString() == "null" ? this.s_titre : (((reponse["items"])[0])["volumeInfo"])["title"].toString();
+        this.s_auteur = ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString() == "null" ? this.s_auteur : ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString();
+        this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10) == "null" ? this.s_datePublication : (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10);
+        this.s_editeur = (((reponse["items"])[0])["volumeInfo"])["publisher"].toString() == "null" ? this.s_editeur : (((reponse["items"])[0])["volumeInfo"])["publisher"].toString();
+        this.s_synopsis = (((reponse["items"])[0])["volumeInfo"])["description"].toString() == "null" ? this.s_synopsis : (((reponse["items"])[0])["volumeInfo"])["description"].toString();
       });
     }
     else {
       print('Request failed with status: ${googleBooks.statusCode}.');
     }
 
+    // API OnperLibrary
+    var onpenLibrary = await http.get("https://openlibrary.org/isbn/" + this.s_ISBN + '.json');
 
-
-    /*
-    // si la réponse est bonne
+    // Si complète les données avec une deuxième API au cas ou il en manquerait
     if (onpenLibrary.statusCode == 200) {
+      repOpenLibrary = true;
       var jsonResponse = convert.jsonDecode(onpenLibrary.body);
       setState(() {
-        this.s_titre = jsonResponse['title'];
-        this.s_datePublication = jsonResponse['publish_date'];
-        this.s_editeur = (jsonResponse['publishers'])[0];
-        this.s_urlImage = "http://covers.openlibrary.org/b/isbn/" + this.s_ISBN + "-M.jpg";
-        pageChargee = true;
+        this.s_titre = this.s_titre == "Inconnu" ? jsonResponse['title'] : this.s_titre;
+        this.s_datePublication = this.s_datePublication == "Inconnue" ?jsonResponse['publish_date'] : this.s_datePublication;
+        this.s_editeur = this.s_editeur == "Inconnu" ? (jsonResponse['publishers'])[0] : this.s_editeur;
       });
     }
     else {
       print('Request failed with status: ${onpenLibrary.statusCode}.');
     }
-     */
+
+    // si on a au moins une des réponse
+    if(repGoogle || repOpenLibrary){
+      setState(() {
+        this.s_urlImage = "http://covers.openlibrary.org/b/isbn/" + this.s_ISBN + "-M.jpg";
+        pageChargee = true;
+      });
+    }
+    // si on a aucune réponse on quitte
+    else {
+      pasTrouve();
+    }
+
+    print("Get info terminé");
+
   }
 
 
