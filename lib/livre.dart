@@ -89,9 +89,12 @@ class _LivreState extends State<Livre>{
                         child: new Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget> [
-                            new TextePerso(this.s_titre, fontWeight: FontWeight.bold),
+                            // les deux "" devant titre et auteur servent juste à éviter un bug
+                            // si le titre ou l'auteur ne sont pas trouvé (très rare je suis daccord...)
+                            // alors l'appli crash psq le widget Text a besoin de data pour s'instancier
+                            new TextePerso(""+this.s_titre, fontWeight: FontWeight.bold),
                             new Container(height: 10.0,),
-                            new TextePerso(this.s_auteur),
+                            new TextePerso(""+this.s_auteur),
                             new Container(height: 7.0,),
                             new TextePerso("Date de publication: "+this.s_datePublication),
                             new Container(height: 7.0,),
