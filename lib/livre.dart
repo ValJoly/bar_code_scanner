@@ -66,7 +66,7 @@ class _LivreState extends State<Livre>{
         title: new Text("Votre livre : "),
         centerTitle: true,
       ),
-      body: !pageChargee? new Center(child: new SizedBox(width: 100.0, height: 100.0, child: new CircularProgressIndicator(strokeWidth: 10.0,),)) : new Container(
+      body: !pageChargee? new Center(child: new SizedBox(width: 100.0, height: 100.0, child: new CircularProgressIndicator(strokeWidth: 10.0,),)) : new SingleChildScrollView(
         padding: EdgeInsets.all(largeur*0.05),
         child: new Column(
           children: [
@@ -91,7 +91,7 @@ class _LivreState extends State<Livre>{
                           children: <Widget> [
                             new TextePerso(this.s_titre, fontWeight: FontWeight.bold),
                             new Container(height: 10.0,),
-                            new TextePerso("Auteur"),
+                            new TextePerso(this.s_auteur),
                             new Container(height: 7.0,),
                             new TextePerso("Date de publication: "+this.s_datePublication),
                             new Container(height: 7.0,),
@@ -150,7 +150,7 @@ class _LivreState extends State<Livre>{
 
   // méthode quand on appuie sur le bouton terminer
   void terminer(){
-    Navigator.pop(context);
+    //Navigator.pop(context);
   }
 
   // méthode récupère les infos du livre via API
@@ -160,14 +160,16 @@ class _LivreState extends State<Livre>{
     //var onpenLibrary = await http.get("https://openlibrary.org/isbn/" + this.s_ISBN + '.json');
     var googleBooks = await http.get("https://www.googleapis.com/books/v1/volumes?q=isbn="+this.s_ISBN);
 
-    // print("\n\n\n\n\n" + googleBooks.body);
+    print("\n\n\n\n\n" + googleBooks.body);
 
     if(googleBooks.statusCode == 200){
       var reponse = convert.jsonDecode(googleBooks.body);
+      print(((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString());
       setState(() {
         this.s_titre = (((reponse["items"])[0])["volumeInfo"])["title"];
-        this.s_auteur = ((((reponse["items"])[0])["volumeInfo"])["authors"])[0];
-        this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"];
+        this.s_auteur = ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString();
+        this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10);
+        this.s_editeur = (((reponse["items"])[0])["volumeInfo"])["publisher"];
         this.s_synopsis = (((reponse["items"])[0])["volumeInfo"])["description"];
         pageChargee = true;
       });
