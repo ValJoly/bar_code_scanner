@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:bar_code_scanner/widgetsPerso/textePerso.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -15,8 +13,11 @@ class BarCodeScanner extends StatefulWidget {
 }
 
 
+
+
 class _BarCodeScannerState extends State<BarCodeScanner> {
   String _scanBarcode = 'Unknown';
+  int selectedIndex = 0;
 
   @override
   void initState() {
@@ -69,7 +70,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         builder: (BuildContext context) {
           return new AlertDialog(
             title: new Text("Aide"),
-            content: new Text("Bienvenue!\n\n\tSur cette page vous voyez tous les livres de votre biblihothèque. Pour en ajouter, vous devez cliquer sur le petit bouton plus en bas à droite."),
+            content: new Text("Parcourez vos livres à travers les trois volets. Pour en ajouter, cliquez sur le bouton en bas à droite"),
             actions: <Widget> [
               new FlatButton(
                   onPressed: (){
@@ -86,7 +87,29 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   @override
   Widget build(BuildContext context) {
 
-    int selectedIndex = 0;
+    List<Widget> widgetList = <Widget>[
+      new Container(
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        child: new Center(
+          child: new ListView(
+            children: <Widget>[
+              new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
+              new Container(height: 7.0,),
+              new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+              new Container(height: 7.0,),
+              new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
+              new Container(height: 7.0,),
+            ]
+          )
+        )
+      ),
+      new Center(
+        child: new Text("Favoris")
+      ),
+      new Center(
+          child: new Text("Envies")
+      ),
+    ];
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -95,7 +118,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         ),
         home: new Scaffold(
             bottomNavigationBar: BottomNavigationBar(
-              onTap: (int index){
+              onTap: (int index) {
                 setState(() {
                   selectedIndex = index;
                 });
@@ -130,59 +153,10 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               child: new Icon(Icons.add),
             ),
             body: Builder(builder: (BuildContext context) {
-              return new Container(
-                  padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-                  child: new Center(
-                      child: new ListView(
-                        children: <Widget>[
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", true),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-                          new CardLivre("Oscar et la dame rose", "Eric-Emmanuel Schmitt, paru en 2002, Albin Michel", false),
-                          new Container(height: 7.0,),
-
-                        ]
-                      )
-                  )
-              );
-            })));
+              return widgetList.elementAt(selectedIndex);
+            })
+        )
+    );
   }
 
 

@@ -19,8 +19,6 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: new BarCodeScanner(),
-      routes: <String, WidgetBuilder> {
-      },
     );
   }
 }

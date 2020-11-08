@@ -27,6 +27,8 @@ class Livre extends StatefulWidget{
 class _LivreState extends State<Livre>{
 
   bool pageChargee = false;
+  bool lu = false;
+  bool ajouterEnvie = false;
 
   // attributs du state
   String s_titre = "";
@@ -53,14 +55,12 @@ class _LivreState extends State<Livre>{
   Widget build(BuildContext context) {
     double largeur = MediaQuery.of(context).size.width;
     double hauteur = MediaQuery.of(context).size.height;
-    bool lu = false;
-    bool ajouterEnvie = false;
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: !pageChargee ? null :  new FloatingActionButton.extended(
           label: new Text("Terminer"),
           splashColor: Colors.white,
-          onPressed: (){print("terminer");}
+          onPressed: terminer,
       ),
       appBar: new AppBar(
         title: new Text("Votre livre : "),
@@ -148,14 +148,40 @@ class _LivreState extends State<Livre>{
     );
   }
 
+  // méthode quand on appuie sur le bouton terminer
+  void terminer(){
+    Navigator.pop(context);
+  }
+
   // méthode récupère les infos du livre via API
   void getInfo() async {
-    // on récupère nos données
-    var response = await http.get("https://openlibrary.org/isbn/" + this.s_ISBN + '.json');
+    //bool repOpenLibrary = false;
+    bool repGoogle = false;
+    //var onpenLibrary = await http.get("https://openlibrary.org/isbn/" + this.s_ISBN + '.json');
+    var googleBooks = await http.get("https://www.googleapis.com/books/v1/volumes?q=isbn="+this.s_ISBN);
+
+    // print("\n\n\n\n\n" + googleBooks.body);
+
+    if(googleBooks.statusCode == 200){
+      var reponse = convert.jsonDecode(googleBooks.body);
+      setState(() {
+        this.s_titre = (((reponse["items"])[0])["volumeInfo"])["title"];
+        this.s_auteur = ((((reponse["items"])[0])["volumeInfo"])["authors"])[0];
+        this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"];
+        this.s_synopsis = (((reponse["items"])[0])["volumeInfo"])["description"];
+        pageChargee = true;
+      });
+    }
+    else {
+      print('Request failed with status: ${googleBooks.statusCode}.');
+    }
+
+
+
+    /*
     // si la réponse est bonne
-    if (response.statusCode == 200) {
-      print("\n\n\n\n\n" + response.body);
-      var jsonResponse = convert.jsonDecode(response.body);
+    if (onpenLibrary.statusCode == 200) {
+      var jsonResponse = convert.jsonDecode(onpenLibrary.body);
       setState(() {
         this.s_titre = jsonResponse['title'];
         this.s_datePublication = jsonResponse['publish_date'];
@@ -165,8 +191,9 @@ class _LivreState extends State<Livre>{
       });
     }
     else {
-      print('Request failed with status: ${response.statusCode}.');
+      print('Request failed with status: ${onpenLibrary.statusCode}.');
     }
+     */
   }
 
 
