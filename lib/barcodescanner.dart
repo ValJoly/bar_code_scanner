@@ -36,6 +36,11 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   List<DataLivre> listDataLivre =[];
   List<Widget> listCardLivre = [];
 
+  // liste des string pour la AppBar
+  List<String> listString = ["Ma Biblihothèque", "Mes Favoris", "Mes Envies"];
+  // liste des couleurs pour les Volets
+  List<Color> listColor = [Colors.green, Colors.green, Colors.amber];
+
 
   @override
   void initState(){
@@ -88,6 +93,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
   }
 
+
   Future<Null> getHelp2() async{
     return showDialog(
         context: context,
@@ -134,7 +140,6 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -156,46 +161,9 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
           child: ListView.builder(
             itemCount: listCardLivre.length,
             itemBuilder: (context, index){
-              return new FocusedMenuHolder(
-                menuItemExtent: 60.0,
-                onPressed: (){},
-                menuItems: <FocusedMenuItem> [
-                  new FocusedMenuItem(
-                      title: new Text("Voir les détails"),
-                      onPressed: (){
-                        Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
-                          return new Livre(_scanBarcode, true);
-                        }));
-                      },
-                      trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
-                  ),
-                  new FocusedMenuItem(
-                      title: new Text("Supprimer"),
-                      onPressed: (){
-                        setState(() {
-                          if(listDataLivre[index].data_favori){
-                            nbrFavoris --;
-                          }
-                          listDataLivre.removeAt(index);
-                          listCardLivre.removeAt(index);
-                        });
-                      },
-                      trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
-                  ),
-                ],
-                child: listCardLivre[index],
-              );
-            },
-          )
-        ),
-      ),
-      new Container(
-        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-        child: this.nbrFavoris == 0 ? new Center(child: new TextePerso("Aucun favoris n'a été ajouté pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
-            child: ListView.builder(
-              itemCount: this.nbrFavoris,
-              itemBuilder: (context, index){
-                return new FocusedMenuHolder(
+              return new Container(
+                margin: EdgeInsets.only(bottom: 10.0),
+                child: new FocusedMenuHolder(
                   menuItemExtent: 60.0,
                   onPressed: (){},
                   menuItems: <FocusedMenuItem> [
@@ -212,15 +180,57 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                       title: new Text("Supprimer"),
                       onPressed: (){
                         setState(() {
+                          if(listDataLivre[index].data_favori){
+                            nbrFavoris --;
+                          }
                           listDataLivre.removeAt(index);
                           listCardLivre.removeAt(index);
-                          nbrFavoris --;
                         });
                       },
                       trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
                     ),
                   ],
-                  child: listDataLivre[index].data_favori ? listCardLivre[index] : null,
+                  child: listCardLivre[index],
+                )
+              );
+            },
+          )
+        ),
+      ),
+      new Container(
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        child: this.nbrFavoris == 0 ? new Center(child: new TextePerso("Aucun favoris n'a été ajouté pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
+            child: ListView.builder(
+              itemCount: this.nbrFavoris,
+              itemBuilder: (context, index){
+                return new Container(
+                  child: new FocusedMenuHolder(
+                    menuItemExtent: 60.0,
+                    onPressed: (){},
+                    menuItems: <FocusedMenuItem> [
+                      new FocusedMenuItem(
+                          title: new Text("Voir les détails"),
+                          onPressed: (){
+                            Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
+                              return new Livre(_scanBarcode, true);
+                            }));
+                          },
+                          trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
+                      ),
+                      new FocusedMenuItem(
+                        title: new Text("Supprimer"),
+                        onPressed: (){
+                          setState(() {
+                            listDataLivre.removeAt(index);
+                            listCardLivre.removeAt(index);
+                            nbrFavoris --;
+                          });
+                        },
+                        trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
+                      ),
+                    ],
+                    child: listDataLivre[index].data_favori ? listCardLivre[index] : null,
+                  )
                 );
               },
             )
@@ -235,7 +245,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: new ThemeData(
-            primarySwatch: Colors.green
+            primarySwatch: this.listColor[selectedIndex]
         ),
         home: new Scaffold(
             bottomNavigationBar: BottomNavigationBar(
@@ -261,10 +271,10 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               ],
             ),
             appBar: AppBar(
-              title: const Text('Ma Bibliothèque'),
+              title: new Text(this.listString[this.selectedIndex], style: new TextStyle(color: Colors.white),),
               elevation: 10,
               actions: [
-                new IconButton(icon: new Icon(Icons.help), onPressed: getHelp2),
+                new IconButton(icon: new Icon(Icons.help), onPressed: getHelp2, color: Colors.white),
               ],
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // pourquoi pas changer sa position
@@ -272,7 +282,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               onPressed: () => scanBarcodeNormal(),
               elevation: 20.0,
               tooltip: "Chercher un nouveau livre",
-              child: new Icon(Icons.add),
+              child: new Icon(Icons.add, color: Colors.white,),
             ),
             body: Builder(builder: (BuildContext context) {
               return widgetList.elementAt(selectedIndex);

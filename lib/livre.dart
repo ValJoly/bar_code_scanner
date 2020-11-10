@@ -33,11 +33,12 @@ class _LivreState extends State<Livre>{
 
   // indique quand la page a finie de charger
   bool pageChargee = false;
-  // récupère les infos des checkBoxs
+  // récupère les infos de la checkBox
   bool lu = false;
-  bool ajouterEnvie = false;
   // si on affiche juste les infos ou veut pouvoir ajouter le livre
   bool s_info;
+  // bibliothèque = false et envie = true
+  bool ajouterA = false;
 
   // attributs du state
   String s_titre = "Inconnu";
@@ -125,7 +126,7 @@ class _LivreState extends State<Livre>{
                 new TextePerso("Marquer comme Lu", textScaleFactor: 1.3,),
                 new Checkbox(value: lu, onChanged: (bool b){
                   setState(() {
-                    lu = !lu;
+                    lu = b;
                   });
                 })
               ],
@@ -133,12 +134,23 @@ class _LivreState extends State<Livre>{
             new Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget> [
-                new TextePerso("Ajouter à la liste des envies", textScaleFactor: 1.3,),
-                new Checkbox(value: ajouterEnvie, onChanged: (bool b){
-                  setState(() {
-                    ajouterEnvie = b;
-                  });
-                })
+                new TextePerso("Ajouter :", textScaleFactor: 1.3,),
+                new Container()
+              ],
+            ),
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                new TextePerso("A La Bibliothèque", textScaleFactor: 1.1,),
+                new Switch(value: ajouterA, onChanged: (bool b){ setState(() { ajouterA = b; });},
+                  activeColor: Colors.amber,
+                  //  couleur arriere active activeTrackColor: Colors.green,
+                  //focusColor: Colors.green,
+                  //hoverColor: Colors.green,
+                  inactiveThumbColor: Colors.lightGreen,
+                  inactiveTrackColor: Colors.lightGreen[300],
+                ),
+                new TextePerso("Aux Envies", textScaleFactor: 1.1, )
               ],
             ),
             new Container(height: 10.0,),
