@@ -23,11 +23,14 @@ class BarCodeScanner extends StatefulWidget {
 class _BarCodeScannerState extends State<BarCodeScanner> {
   String _scanBarcode = 'Unknown';
 
+  // ne plus afficher
+  bool nePlusAfficher = false;
+
   // volet selectioné parmis les 3
   int selectedIndex = 0;
 
   // nombre de favoris
-  int nbrFavoris = 1;
+  int nbrFavoris;
 
   // liste des livres
   List<DataLivre> listDataLivre =[];
@@ -38,9 +41,10 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   void initState(){
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_){
-      getHelp();
+      getHelp2();
     });
   }
+
 
 
   startBarcodeScanStream() async {
@@ -84,39 +88,65 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
   }
 
-
-  Future<Null> getHelp() async{
+  Future<Null> getHelp2() async{
     return showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return new AlertDialog(
+          return new SimpleDialog(
             title: new Text("Aide"),
-            content: new Text("Parcourez vos livres à travers les trois volets. Pour en ajouter, cliquez sur le bouton en bas à droite. Pour voir les détails ou le supprimer, maintenez appuyé votre doigt sur le livre."),
-            actions: <Widget> [
-              new FlatButton(
-                  onPressed: (){
-                    Navigator.pop(context);
-                  },
-                  child: new Text("OK")
+            children: [
+              new Container(
+                padding: EdgeInsets.all(12.0),
+                child: new Column(
+                  children: [
+                    new TextePerso("Vous pouvez naviguer entre les 3 volets pour voir les livres que vous avez ajoutés.", textAlign: TextAlign.justify,),
+                    new Divider(height: 10),
+                    new Row(children: [ new Container(width: 10.0,),new Icon(Icons.add, color: Colors.green,), new TextePerso("    Ajouter un livre")],),
+                    new Container(height: 20.0,),
+                    new TextePerso("Une fois que vous aurez ajouté des livres, maintenez votre doigt appuyé sur celui qui vous interesse pour plus d'option.", textAlign: TextAlign.justify,),
+                    new Divider(height: 10),
+                    new Row(children: [ new Container(width: 10.0,),new Icon(Icons.info_outline, color: Colors.green,), new TextePerso("    Détails du livre")],),
+                    new Row(children: [ new Container(width: 10.0,),new Icon(Icons.delete_outline, color: Colors.redAccent,), new TextePerso("    Supprimer le livre")],),
+                    new Container(height: 20.0,),
+                    new TextePerso("Vous pouvez ajouter des livres à vos favoris en cliquant sur le coeur à coté d'eux.", textAlign: TextAlign.justify,),
+                    new Divider(height: 10),
+                    new Row(children: [ new Container(width: 10.0,),new Icon(Icons.favorite, color: Colors.redAccent,), new TextePerso("    Ajouter aux favoris")],),
+                  ],
+                ),
               ),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  new Container(),
+                  new FlatButton(
+                      onPressed: (){
+                        Navigator.pop(context);
+                      },
+                      child: new TextePerso("Go", textScaleFactor: 1.1, fontWeight: FontWeight.bold,)
+                  ),
+                ],
+              )
             ],
           );
         }
     );
   }
 
-  void ajouterFavori(){
-   setState(() {
-     print("ajouter favori");
-   });
-  }
 
 
   @override
   Widget build(BuildContext context) {
 
     print("Début build barcodeScanner");
+
+    // a chaque début du build on doit recompter le nombre de favoris pour donner la longueur de cette liste au listeView du volet favori
+    this.nbrFavoris = 0;
+    for( int i = 0; i < this.listDataLivre.length; i++){
+      if(this.listDataLivre[i].data_favori){
+        this.nbrFavoris++;
+      }
+    }
 
     // listes des widgets de la bottomBar
     List<Widget> widgetList = <Widget>[
@@ -143,6 +173,9 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                       title: new Text("Supprimer"),
                       onPressed: (){
                         setState(() {
+                          if(listDataLivre[index].data_favori){
+                            nbrFavoris --;
+                          }
                           listDataLivre.removeAt(index);
                           listCardLivre.removeAt(index);
                         });
@@ -158,9 +191,9 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       ),
       new Container(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-        child: listCardLivre.isEmpty ? new Center(child: new TextePerso("Aucun favoris n'a été ajouté pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
+        child: this.nbrFavoris == 0 ? new Center(child: new TextePerso("Aucun favoris n'a été ajouté pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
             child: ListView.builder(
-              itemCount: listCardLivre.length,
+              itemCount: this.nbrFavoris,
               itemBuilder: (context, index){
                 return new FocusedMenuHolder(
                   menuItemExtent: 60.0,
@@ -181,6 +214,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         setState(() {
                           listDataLivre.removeAt(index);
                           listCardLivre.removeAt(index);
+                          nbrFavoris --;
                         });
                       },
                       trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
@@ -230,7 +264,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               title: const Text('Ma Bibliothèque'),
               elevation: 10,
               actions: [
-                new IconButton(icon: new Icon(Icons.help), onPressed: getHelp),
+                new IconButton(icon: new Icon(Icons.help), onPressed: getHelp2),
               ],
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // pourquoi pas changer sa position
