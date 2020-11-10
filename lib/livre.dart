@@ -11,24 +11,33 @@ class Livre extends StatefulWidget{
 
   // attributs
   String m_isbn = "Inconnu";
+  // sert a savoir pour quelle raison on affiche le livre
+  // info = true => on affiche juste les details du livre
+  // info= false => on affiche le livre en vu de l'afficher peut être
+  bool m_info;
 
   // constructeur
-  Livre(String isbn){
+  Livre(String isbn, bool info){
     this.m_isbn = isbn;
+    this.m_info = info;
   }
 
   // creatState
   @override
-  _LivreState createState() => new _LivreState(this.m_isbn);
+  _LivreState createState() => new _LivreState(this.m_isbn, this.m_info);
 }
 
 
 
 class _LivreState extends State<Livre>{
 
+  // indique quand la page a finie de charger
   bool pageChargee = false;
+  // récupère les infos des checkBoxs
   bool lu = false;
   bool ajouterEnvie = false;
+  // si on affiche juste les infos ou veut pouvoir ajouter le livre
+  bool s_info;
 
   // attributs du state
   String s_titre = "Inconnu";
@@ -40,8 +49,9 @@ class _LivreState extends State<Livre>{
   String s_synopsis = "Pas disponible";
 
   // constructeurs du state
-  _LivreState(String isbn){
+  _LivreState(String isbn, bool info){
     this.s_ISBN = isbn;
+    this.s_info = info;
   }
 
   // au lancement
@@ -58,7 +68,7 @@ class _LivreState extends State<Livre>{
     print("Début du build de livre");
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: !pageChargee ? null :  new FloatingActionButton.extended(
+        floatingActionButton: !pageChargee || this.s_info ? null :  new FloatingActionButton.extended(
           label: new Text("Ajouter"),
           splashColor: Colors.white,
           onPressed: terminer,
@@ -154,7 +164,7 @@ class _LivreState extends State<Livre>{
 
   // méthode quand on appuie sur le bouton terminer
   void terminer(){
-    var retour = {'Titre': this.s_titre,'Info': this.s_auteur+", paru en "+this.s_datePublication+", "+this.s_editeur};
+    var retour = {'Titre': this.s_titre,'Auteur': this.s_auteur, 'DatePublication': this.s_datePublication, 'Editeur': this.s_editeur, 'ISBN': this.s_ISBN, "UrlImage": this.s_urlImage, "Synopsis": this.s_synopsis, "Lu": false, "Envie": false };
     Navigator.pop(context, retour);
   }
 
@@ -196,7 +206,7 @@ class _LivreState extends State<Livre>{
       setState(() {
         this.s_titre = (((reponse["items"])[0])["volumeInfo"])["title"].toString() == "null" ? this.s_titre : (((reponse["items"])[0])["volumeInfo"])["title"].toString();
         this.s_auteur = ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString() == "null" ? this.s_auteur : ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString();
-        this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10) == "null" ? this.s_datePublication : (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10);
+        //this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString() == "null" ? this.s_datePublication : (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10);
         this.s_editeur = (((reponse["items"])[0])["volumeInfo"])["publisher"].toString() == "null" ? this.s_editeur : (((reponse["items"])[0])["volumeInfo"])["publisher"].toString();
         this.s_synopsis = (((reponse["items"])[0])["volumeInfo"])["description"].toString() == "null" ? this.s_synopsis : (((reponse["items"])[0])["volumeInfo"])["description"].toString();
       });

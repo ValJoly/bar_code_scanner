@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:bar_code_scanner/widgetsPerso/textePerso.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 import 'livre.dart';
 import 'widgetsPerso/cardLivre.dart';
+import 'mesObjets/dataLivre.dart';
 
 
 class BarCodeScanner extends StatefulWidget {
@@ -19,15 +22,24 @@ class BarCodeScanner extends StatefulWidget {
 
 class _BarCodeScannerState extends State<BarCodeScanner> {
   String _scanBarcode = 'Unknown';
+
+  // volet selectioné parmis les 3
   int selectedIndex = 0;
+
+  // nombre de favoris
+  int nbrFavoris = 1;
+
   // liste des livres
-  List<Widget> livreList = [];
+  List<DataLivre> listDataLivre =[];
+  List<StatelessWidget> listCardLivre = [];
 
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    print("hello");
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      getHelp();
+    });
   }
 
 
@@ -59,17 +71,18 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     _scanBarcode = barcodeScanRes;
     final result = await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => Livre(_scanBarcode))
+        MaterialPageRoute(builder: (context) => Livre(_scanBarcode, false))
     );
 
     print("\n\n\n\n\n\n\n\n\n"+"$result");
 
     setState(() {
-      livreList.add(new CardLivre(result["Titre"], "Info", false));
+      DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"]);
+      listDataLivre.add(monLivre);
+      listCardLivre.add(new CardLivre(monLivre, ajouterFavori));
     });
 
   }
-
 
 
   Future<Null> getHelp() async{
@@ -93,19 +106,25 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     );
   }
 
+  void ajouterFavori(){
+   setState(() {
+     print("ajouter favori");
+   });
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
     print("Début build barcodeScanner");
 
-
     // listes des widgets de la bottomBar
     List<Widget> widgetList = <Widget>[
       new Container(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-        child: new Center(
+        child: listCardLivre.length == 0 ? new Center(child: new TextePerso("Aucun livre dans votre biblihothèque pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
           child: ListView.builder(
-            itemCount: livreList.length,
+            itemCount: listCardLivre.length,
             itemBuilder: (context, index){
               return new FocusedMenuHolder(
                 menuItemExtent: 60.0,
@@ -113,27 +132,65 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                 menuItems: <FocusedMenuItem> [
                   new FocusedMenuItem(
                       title: new Text("Voir les détails"),
-                      onPressed: (){},
+                      onPressed: (){
+                        Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
+                          return new Livre(_scanBarcode, true);
+                        }));
+                      },
                       trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
                   ),
                   new FocusedMenuItem(
                       title: new Text("Supprimer"),
                       onPressed: (){
                         setState(() {
-                          livreList.removeAt(index);
+                          listDataLivre.removeAt(index);
+                          listCardLivre.removeAt(index);
                         });
                       },
                       trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
                   ),
                 ],
-                child: livreList[index],
+                child: listCardLivre[index],
               );
             },
           )
         ),
       ),
-      new Center(
-        child: new Text("Favoris")
+      new Container(
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        child: listCardLivre.isEmpty ? new Center(child: new TextePerso("Aucun favoris n'a été ajouté pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
+            child: ListView.builder(
+              itemCount: listCardLivre.length,
+              itemBuilder: (context, index){
+                return new FocusedMenuHolder(
+                  menuItemExtent: 60.0,
+                  onPressed: (){},
+                  menuItems: <FocusedMenuItem> [
+                    new FocusedMenuItem(
+                        title: new Text("Voir les détails"),
+                        onPressed: (){
+                          Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
+                            return new Livre(_scanBarcode, true);
+                          }));
+                        },
+                        trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
+                    ),
+                    new FocusedMenuItem(
+                      title: new Text("Supprimer"),
+                      onPressed: (){
+                        setState(() {
+                          listDataLivre.removeAt(index);
+                          listCardLivre.removeAt(index);
+                        });
+                      },
+                      trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
+                    ),
+                  ],
+                  child: listDataLivre[index].data_favori ? listCardLivre[index] : null,
+                );
+              },
+            )
+        ),
       ),
       new Center(
           child: new Text("Envies")
