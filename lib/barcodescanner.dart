@@ -31,7 +31,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
   // liste des livres
   List<DataLivre> listDataLivre =[];
-  List<StatelessWidget> listCardLivre = [];
+  List<Widget> listCardLivre = [];
 
 
   @override
@@ -79,7 +79,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     setState(() {
       DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"]);
       listDataLivre.add(monLivre);
-      listCardLivre.add(new CardLivre(monLivre, ajouterFavori));
+      listCardLivre.add(new CardLivre(monLivre));
     });
 
   }
