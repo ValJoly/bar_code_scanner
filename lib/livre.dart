@@ -120,38 +120,44 @@ class _LivreState extends State<Livre>{
                 )
               ],
             ),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget> [
-                new TextePerso("Marquer comme Lu", textScaleFactor: 1.3,),
-                new Checkbox(value: lu, onChanged: (bool b){
-                  setState(() {
-                    lu = b;
-                  });
-                })
-              ],
-            ),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget> [
-                new TextePerso("Ajouter :", textScaleFactor: 1.3,),
-                new Container()
-              ],
-            ),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                new TextePerso("A La Bibliothèque", textScaleFactor: 1.1,),
-                new Switch(value: ajouterA, onChanged: (bool b){ setState(() { ajouterA = b; });},
-                  activeColor: Colors.amber,
-                  //  couleur arriere active activeTrackColor: Colors.green,
-                  //focusColor: Colors.green,
-                  //hoverColor: Colors.green,
-                  inactiveThumbColor: Colors.lightGreen,
-                  inactiveTrackColor: Colors.lightGreen[300],
-                ),
-                new TextePerso("Aux Envies", textScaleFactor: 1.1, )
-              ],
+            new Container(
+              child: this.s_info ? null : new Column(
+                children: [
+                  new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget> [
+                      new TextePerso("Marquer comme Lu", textScaleFactor: 1.3,),
+                      new Checkbox(value: lu, onChanged: (bool b){
+                        setState(() {
+                          if(!ajouterA) {
+                            lu = b;
+                          }
+                        });
+                      })
+                    ],
+                  ),
+                  new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget> [
+                      new TextePerso("Ajouter :", textScaleFactor: 1.3,),
+                      new Container()
+                    ],
+                  ),
+                  new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      new TextePerso("A La Bibliothèque", textScaleFactor: 1.1,),
+                      new Switch(value: ajouterA, onChanged: (bool b){ setState(() { ajouterA = b; if(b) { lu  = false; } });}, // un livre des envies n'est a priori pas encore lu ?
+                        activeColor: Colors.amber,
+
+                        inactiveThumbColor: Colors.lightGreen,
+                        inactiveTrackColor: Colors.lightGreen[300],
+                      ),
+                      new TextePerso("Aux Envies", textScaleFactor: 1.1, )
+                    ],
+                  ),
+                ],
+              ),
             ),
             new Container(height: 10.0,),
             new Card(

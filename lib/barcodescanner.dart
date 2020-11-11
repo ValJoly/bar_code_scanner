@@ -125,12 +125,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   new Container(),
-                  new FlatButton(
-                      onPressed: (){
-                        Navigator.pop(context);
-                      },
-                      child: new TextePerso("Go", textScaleFactor: 1.1, fontWeight: FontWeight.bold,)
-                  ),
+                  new FlatButton(onPressed: (){Navigator.pop(context);},child: new TextePerso("Go", textScaleFactor: 1.1, fontWeight: FontWeight.bold,)),
                 ],
               )
             ],
@@ -138,6 +133,30 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         }
     );
   }
+
+  void trier(){
+    CardLivre index1 = this.listCardLivre[0];
+    CardLivre index2 = this.listCardLivre[1];
+    print("Voici notre liste au début\n\t"+index1.cl_livre.data_titre+"\t"+index2.cl_livre.data_titre);
+
+    setState(() {
+      this.listCardLivre.sort( ( A, B ) {
+        CardLivre a = A;
+        CardLivre b = B;
+        return 1;
+      });
+    });
+
+    index1 = this.listCardLivre[0];
+    index2 = this.listCardLivre[1];
+    print("Voici notre liste apres trie \n\t"+index1.cl_livre.data_titre+"\t"+index2.cl_livre.data_titre);
+
+
+    print("\n\n\n liste triée");
+  }
+
+
+
 
 
   @override
@@ -274,7 +293,9 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               title: new Text(this.listString[this.selectedIndex], style: new TextStyle(color: Colors.white),),
               elevation: 10,
               actions: [
+                new IconButton(icon: new Icon(Icons.restaurant), onPressed: trier, color: Colors.white),
                 new IconButton(icon: new Icon(Icons.help), onPressed: getHelp2, color: Colors.white),
+                new IconButton(icon: new Icon(Icons.sort), onPressed: getHelp2, color: Colors.white),
               ],
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // pourquoi pas changer sa position
@@ -284,7 +305,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               tooltip: "Chercher un nouveau livre",
               child: new Icon(Icons.add, color: Colors.white,),
             ),
-            body: Builder(builder: (BuildContext context) {
+            body: new Builder(builder: (BuildContext context) {
               return widgetList.elementAt(selectedIndex);
             })
         )

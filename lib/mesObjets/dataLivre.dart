@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 class DataLivre {
 
   // attributs du dataLivre
@@ -12,6 +14,7 @@ class DataLivre {
   bool data_lu;
   bool data_envie;
 
+  // constructeur
   DataLivre(String titre, String auteur, String datePublication, String editeur, String isbn, String urlImage, String synopsis, bool lu, bool envie){
     this.data_titre = titre;
     this.data_auteur = auteur;
@@ -24,5 +27,24 @@ class DataLivre {
     this.data_lu = lu;
     this.data_envie = envie;
   }
+
+  // méthode pour trier
+  int comparerA(DataLivre other){
+    // si les deux sont fav ou les deux non
+    if((this.data_favori && other.data_favori) || (!this.data_favori && !other.data_favori)){
+      return 0;
+    }
+    // si le b est fav et pas le 1
+    if(!this.data_favori && other.data_favori){
+      return 1;
+    }
+    // si le 1 est fav mais pas le b
+    if(this.data_favori && !other.data_favori){
+      return -1;
+    }
+    return null;
+  }
+
+
 
 }

@@ -13,13 +13,16 @@ class CardLivre extends StatefulWidget {
     this.cl_livre = livre;
   }
 
-
   @override
   State<CardLivre> createState() {
     return _CardLivreState(this.cl_livre);
   }
 
 } // classe CardLivre
+
+
+
+
 
 
 class _CardLivreState extends State<CardLivre>{
@@ -31,6 +34,7 @@ class _CardLivreState extends State<CardLivre>{
   _CardLivreState(DataLivre livre) {
     this.s_livre  = livre;
   }
+
 
 @override
   Widget build(BuildContext context) {
@@ -50,8 +54,8 @@ class _CardLivreState extends State<CardLivre>{
                       child: new Text(this.s_livre.data_titre,
                           style: new TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                    new Text(this.s_livre.data_auteur + ", paru en " +
-                        this.s_livre.data_datePublication + ", " + this.s_livre.data_editeur),
+                    new Text("Auteur: "+this.s_livre.data_auteur + ", date de publication: " +
+                        this.s_livre.data_datePublication + ", éditeur: " + this.s_livre.data_editeur),
                   ],
                 ),
               ),
