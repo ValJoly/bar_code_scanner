@@ -134,29 +134,47 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     );
   }
 
-  void trier(){
-    CardLivre index1 = this.listCardLivre[0];
-    CardLivre index2 = this.listCardLivre[1];
-    print("Voici notre liste au début\n\t"+index1.cl_livre.data_titre+"\t"+index2.cl_livre.data_titre);
-
+  void trier(int option){
+    print("je trie avec l'option "+option.toString());
     setState(() {
-      this.listCardLivre.sort( ( A, B ) {
-        CardLivre a = A;
-        CardLivre b = B;
-        return 1;
-      });
-    });
-
-    index1 = this.listCardLivre[0];
-    index2 = this.listCardLivre[1];
-    print("Voici notre liste apres trie \n\t"+index1.cl_livre.data_titre+"\t"+index2.cl_livre.data_titre);
-
-
+      // titre par ordre alphabétique
+      if(option == 1){
+        this.listCardLivre.sort( ( A, B ) {
+          CardLivre a = A;
+          CardLivre b = B;
+          return a.cl_livre.data_titre.toString().toLowerCase().compareTo(b.cl_livre.data_titre.toString().toLowerCase());
+        });
+        // auteur par ordre alphabéthique
+      } else if(option == 2){
+        this.listCardLivre.sort( ( A, B ) {
+          CardLivre a = A;
+          CardLivre b = B;
+          return a.cl_livre.data_auteur.toString().toLowerCase().compareTo(b.cl_livre.data_auteur.toString().toLowerCase());
+        });
+        // livres lus
+      } else if(option == 3){
+        this.listCardLivre.sort( ( A, B ) {
+          CardLivre a = A;
+          CardLivre b = B;
+          if(!a.cl_livre.data_lu && b.cl_livre.data_lu){
+            return 1;
+          }
+          if(a.cl_livre.data_lu && !b.cl_livre.data_lu){
+            return -1;
+          }
+          return 0;
+        });
+        // inverse
+      } else if(option == 4){
+        this.listCardLivre.sort( ( A, B ) {
+          CardLivre a = A;
+          CardLivre b = B;
+          return 1;
+        });
+      }
+    });   // fin du setstate
     print("\n\n\n liste triée");
   }
-
-
-
 
 
   @override
@@ -165,16 +183,13 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     print("Début build barcodeScanner");
 
     // a chaque début du build on doit recompter le nombre de favoris pour donner la longueur de cette liste au listeView du volet favori
-    this.nbrFavoris = 0;
-    for( int i = 0; i < this.listDataLivre.length; i++){
-      if(this.listDataLivre[i].data_favori){
-        this.nbrFavoris++;
-      }
-    }
+    this.nbrFavoris;
+
 
     // listes des widgets de la bottomBar
     List<Widget> widgetList = <Widget>[
       new Container(
+        key: Key(UniqueKey().toString()),
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: listCardLivre.length == 0 ? new Center(child: new TextePerso("Aucun livre dans votre biblihothèque pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
           child: ListView.builder(
@@ -217,6 +232,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         ),
       ),
       new Container(
+        key: Key(UniqueKey().toString()),
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: this.nbrFavoris == 0 ? new Center(child: new TextePerso("Aucun favoris n'a été ajouté pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
             child: ListView.builder(
@@ -248,7 +264,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
                       ),
                     ],
-                    child: listDataLivre[index].data_favori ? listCardLivre[index] : null,
+                    child: (this.listCardLivre.elementAt(index) as CardLivre).cl_livre.data_favori ? listCardLivre[index] : null,
                   )
                 );
               },
@@ -271,6 +287,15 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               currentIndex: selectedIndex,
               onTap: (int index) {
                 setState(() {
+                  // si on veut les favoris
+                  if(index == 1) {
+                    this.nbrFavoris = 0;
+                    for( int i = 0; i < this.listDataLivre.length; i++){
+                      if((this.listCardLivre.elementAt(i) as CardLivre).cl_livre.data_favori){
+                        this.nbrFavoris++;
+                      }
+                    }
+                  }
                   selectedIndex = index;
                 });
               },
@@ -293,9 +318,19 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               title: new Text(this.listString[this.selectedIndex], style: new TextStyle(color: Colors.white),),
               elevation: 10,
               actions: [
-                new IconButton(icon: new Icon(Icons.restaurant), onPressed: trier, color: Colors.white),
                 new IconButton(icon: new Icon(Icons.help), onPressed: getHelp2, color: Colors.white),
-                new IconButton(icon: new Icon(Icons.sort), onPressed: getHelp2, color: Colors.white),
+                new PopupMenuButton <int> (
+                  onSelected: (int selected){ trier(selected);},
+                  icon: new Icon(Icons.sort),
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<int>> [
+                    PopupMenuItem(child: new Text("Trier les livre par:       ")),
+                    PopupMenuItem( value: 0, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.timer_outlined, color: Colors.green,),  new Container(width: 15), new Text("Dernier ajout")],)),
+                    PopupMenuItem(value: 1, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.edit, color: Colors.green,), new Container(width: 15), new Text("Par titre")],)),
+                    PopupMenuItem(value: 2, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.people, color: Colors.green,), new Container(width: 15), new Text("Par auteur")],)),
+                    PopupMenuItem(value: 3, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.book, color: Colors.green,), new Container(width: 15), new Text("Les livres lus")],)),
+                    PopupMenuItem(value: 4, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.autorenew_rounded, color: Colors.green,), new Container(width: 15), new Text("Inverser")],)),
+                  ],
+                )
               ],
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // pourquoi pas changer sa position
