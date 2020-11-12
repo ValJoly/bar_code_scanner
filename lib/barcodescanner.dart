@@ -18,8 +18,6 @@ class BarCodeScanner extends StatefulWidget {
 }
 
 
-
-
 class _BarCodeScannerState extends State<BarCodeScanner> {
   String _scanBarcode = 'Unknown';
 
@@ -35,6 +33,8 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   // liste des livres
   List<DataLivre> listDataLivre =[];
   List<Widget> listCardLivre = [];
+  List<Widget> listCardEnvie = [];
+
 
   // liste des string pour la AppBar
   List<String> listString = ["Ma Biblihothèque", "Mes Favoris", "Mes Envies"];
@@ -88,7 +88,12 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     setState(() {
       DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"]);
       listDataLivre.add(monLivre);
-      listCardLivre.add(new CardLivre(monLivre));
+      if(result["Envie"]){
+        listCardEnvie.add(new CardLivre(monLivre));
+      }
+      else {
+        listCardLivre.add(new CardLivre(monLivre));
+      }
     });
 
   }
@@ -137,44 +142,52 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   void trier(int option){
     print("je trie avec l'option "+option.toString());
     setState(() {
-      // titre par ordre alphabétique
-      if(option == 1){
-        this.listCardLivre.sort( ( A, B ) {
-          CardLivre a = A;
-          CardLivre b = B;
-          return a.cl_livre.data_titre.toString().toLowerCase().compareTo(b.cl_livre.data_titre.toString().toLowerCase());
+      // ajouter recement
+      if(option == 0) {
+        this.listCardLivre.sort( ( a, b ) {
+          return (a as CardLivre).cl_livre.data_dateAjout.compareTo((b as CardLivre).cl_livre.data_dateAjout);
+        });
+      } else if(option == 1){
+        this.listCardLivre.sort( ( a, b ) {
+          return (a as CardLivre).cl_livre.data_titre.toString().toLowerCase().compareTo((b as CardLivre).cl_livre.data_titre.toString().toLowerCase());
         });
         // auteur par ordre alphabéthique
       } else if(option == 2){
-        this.listCardLivre.sort( ( A, B ) {
-          CardLivre a = A;
-          CardLivre b = B;
-          return a.cl_livre.data_auteur.toString().toLowerCase().compareTo(b.cl_livre.data_auteur.toString().toLowerCase());
+        this.listCardLivre.sort( ( a, b) {
+          return (a as CardLivre).cl_livre.data_auteur.toString().toLowerCase().compareTo((b as CardLivre).cl_livre.data_auteur.toString().toLowerCase());
         });
         // livres lus
       } else if(option == 3){
-        this.listCardLivre.sort( ( A, B ) {
-          CardLivre a = A;
-          CardLivre b = B;
-          if(!a.cl_livre.data_lu && b.cl_livre.data_lu){
+        this.listCardLivre.sort( ( a, b ) {
+          if(!(a as CardLivre).cl_livre.data_lu && (b as CardLivre).cl_livre.data_lu){
             return 1;
           }
-          if(a.cl_livre.data_lu && !b.cl_livre.data_lu){
+          if((a as CardLivre).cl_livre.data_lu && !(b as CardLivre).cl_livre.data_lu){
             return -1;
           }
           return 0;
         });
         // inverse
       } else if(option == 4){
-        this.listCardLivre.sort( ( A, B ) {
-          CardLivre a = A;
-          CardLivre b = B;
+        this.listCardLivre.sort( ( a, b ) {
           return 1;
+        });
+        // met les favoris au dessus
+      } else if(option == 5){
+        this.listCardLivre.sort( ( a, b ) {
+          if(!(a as CardLivre).cl_livre.data_favori && (b as CardLivre).cl_livre.data_favori){
+            return 1;
+          }
+          if((a as CardLivre).cl_livre.data_favori && !(b as CardLivre).cl_livre.data_favori){
+            return -1;
+          }
+          return 0;
         });
       }
     });   // fin du setstate
     print("\n\n\n liste triée");
   }
+
 
 
   @override
@@ -188,6 +201,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
     // listes des widgets de la bottomBar
     List<Widget> widgetList = <Widget>[
+      // les livres
       new Container(
         key: Key(UniqueKey().toString()),
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
@@ -211,14 +225,35 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
                     ),
                     new FocusedMenuItem(
+                      title: new Text("Ajouter / Supprimer comme lu"),
+                      onPressed: (){
+                        setState(() {
+                          (this.listCardLivre[index] as CardLivre).cl_livre.data_lu = !(this.listCardLivre[index] as CardLivre).cl_livre.data_lu;
+                        });
+                        Scaffold.of(context).showSnackBar(new SnackBar(
+                          content: (this.listCardLivre[index] as CardLivre).cl_livre.data_lu ? new Text("Marqué comme lu") : new Text("Marqué comme non lu") ,
+                          backgroundColor: Colors.green,
+                          // behavior: SnackBarBehavior.floating,
+                          elevation: 10.0,
+                        ));
+                      },
+                      trailingIcon: new Icon((this.listCardLivre[index] as CardLivre).cl_livre.data_lu ? Icons.book_rounded : Icons.book_outlined, color: Colors.green,),
+                    ),
+                    new FocusedMenuItem(
                       title: new Text("Supprimer"),
                       onPressed: (){
                         setState(() {
-                          if(listDataLivre[index].data_favori){
+                          if((this.listCardLivre[index] as CardLivre).cl_livre.data_favori){
                             nbrFavoris --;
                           }
-                          listDataLivre.removeAt(index);
+                          // on supprime le Card livre
                           listCardLivre.removeAt(index);
+                          String isbn = (this.listCardLivre[index] as CardLivre).cl_livre.data_ISBN;
+                          for(int i = 0; i < this.listDataLivre.length; i ++){
+                            if(this.listDataLivre[i].data_ISBN == isbn){
+                              this.listDataLivre.removeAt(i);
+                            }
+                          }
                         });
                       },
                       trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
@@ -231,6 +266,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
           )
         ),
       ),
+      // les favoris
       new Container(
         key: Key(UniqueKey().toString()),
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
@@ -239,6 +275,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               itemCount: this.nbrFavoris,
               itemBuilder: (context, index){
                 return new Container(
+                  padding: EdgeInsets.only(bottom: 10.0),
                   child: new FocusedMenuHolder(
                     menuItemExtent: 60.0,
                     onPressed: (){},
@@ -256,9 +293,14 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         title: new Text("Supprimer"),
                         onPressed: (){
                           setState(() {
-                            listDataLivre.removeAt(index);
-                            listCardLivre.removeAt(index);
                             nbrFavoris --;
+                            listCardLivre.removeAt(index);
+                            String isbn = (this.listCardLivre[index] as CardLivre).cl_livre.data_ISBN;
+                            for(int i = 0; i < this.listDataLivre.length; i ++){
+                              if(this.listDataLivre[i].data_ISBN == isbn){
+                                this.listDataLivre.removeAt(i);
+                              }
+                            }
                           });
                         },
                         trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
@@ -271,8 +313,51 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
             )
         ),
       ),
-      new Center(
-          child: new Text("Envies")
+      // les envies
+      new Container(
+        key: Key(UniqueKey().toString()),
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        child: listCardEnvie.length == 0 ? new Center(child: new TextePerso("Aucun livre dans vos envies pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
+            child: ListView.builder(
+              itemCount: listCardEnvie.length,
+              itemBuilder: (context, index){
+                return new Container(
+                    margin: EdgeInsets.only(bottom: 10.0),
+                    child: new FocusedMenuHolder(
+                      menuItemExtent: 60.0,
+                      onPressed: (){},
+                      menuItems: <FocusedMenuItem> [
+                        new FocusedMenuItem(
+                            title: new Text("Voir les détails"),
+                            onPressed: (){
+                              Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
+                                return new Livre(_scanBarcode, true);
+                              }));
+                            },
+                            trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
+                        ),
+                        new FocusedMenuItem(
+                          title: new Text("Supprimer"),
+                          onPressed: (){
+                            setState(() {
+                              listCardEnvie.removeAt(index);
+                              String isbn = (this.listCardEnvie[index] as CardLivre).cl_livre.data_ISBN;
+                              for(int i = 0; i < this.listDataLivre.length; i ++){
+                                if(this.listDataLivre[i].data_ISBN == isbn){
+                                  this.listDataLivre.removeAt(i);
+                                }
+                              }
+                            });
+                          },
+                          trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
+                        ),
+                      ],
+                      child: listCardEnvie[index],
+                    )
+                );
+              },
+            )
+        ),
       ),
     ];
 
@@ -280,17 +365,25 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: new ThemeData(
-            primarySwatch: this.listColor[selectedIndex]
+            primarySwatch: this.listColor[selectedIndex],
+            floatingActionButtonTheme: new FloatingActionButtonThemeData(
+              foregroundColor:  this.listColor[selectedIndex],
+            )
         ),
-        home: new Scaffold(
+      home: new Scaffold(
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: selectedIndex,
               onTap: (int index) {
                 setState(() {
                   // si on veut les favoris
-                  if(index == 1) {
+                  if(index == 0){
+                    trier(0);
+                  }
+                  else if(index == 1) {
+                    // on met les favoris au dessus
+                    trier(5);
                     this.nbrFavoris = 0;
-                    for( int i = 0; i < this.listDataLivre.length; i++){
+                    for( int i = 0; i < this.listCardLivre.length; i++){
                       if((this.listCardLivre.elementAt(i) as CardLivre).cl_livre.data_favori){
                         this.nbrFavoris++;
                       }

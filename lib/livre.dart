@@ -182,7 +182,7 @@ class _LivreState extends State<Livre>{
 
   // méthode quand on appuie sur le bouton terminer
   void terminer(){
-    var retour = {'Titre': this.s_titre,'Auteur': this.s_auteur, 'DatePublication': this.s_datePublication, 'Editeur': this.s_editeur, 'ISBN': this.s_ISBN, "UrlImage": this.s_urlImage, "Synopsis": this.s_synopsis, "Lu": false, "Envie": false };
+    var retour = {'Titre': this.s_titre,'Auteur': this.s_auteur, 'DatePublication': this.s_datePublication, 'Editeur': this.s_editeur, 'ISBN': this.s_ISBN, "UrlImage": this.s_urlImage, "Synopsis": this.s_synopsis, "Lu": false, "Envie": ajouterA };
     Navigator.pop(context, retour);
   }
 

@@ -13,6 +13,7 @@ class DataLivre {
   bool data_favori;
   bool data_lu;
   bool data_envie;
+  DateTime data_dateAjout;
 
   // constructeur
   DataLivre(String titre, String auteur, String datePublication, String editeur, String isbn, String urlImage, String synopsis, bool lu, bool envie){
@@ -26,25 +27,7 @@ class DataLivre {
     this.data_favori = false;
     this.data_lu = lu;
     this.data_envie = envie;
+    this.data_dateAjout = DateTime.now();
   }
-
-  // méthode pour trier
-  int comparerA(DataLivre other){
-    // si les deux sont fav ou les deux non
-    if((this.data_favori && other.data_favori) || (!this.data_favori && !other.data_favori)){
-      return 0;
-    }
-    // si le b est fav et pas le 1
-    if(!this.data_favori && other.data_favori){
-      return 1;
-    }
-    // si le 1 est fav mais pas le b
-    if(this.data_favori && !other.data_favori){
-      return -1;
-    }
-    return null;
-  }
-
-
 
 }
