@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bar_code_scanner/stat.dart';
 import 'package:bar_code_scanner/widgetsPerso/textePerso.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -188,6 +189,13 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     print("\n\n\n liste triée");
   }
 
+  void voirStat(){
+    Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
+      return new Stat(listDataLivre);
+    }));
+  }
+
+
 
 
   @override
@@ -246,9 +254,11 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                           if((this.listCardLivre[index] as CardLivre).cl_livre.data_favori){
                             nbrFavoris --;
                           }
+                          // on save l'isbn avant
+                          String isbn = (this.listCardLivre[index] as CardLivre).cl_livre.data_ISBN;
                           // on supprime le Card livre
                           listCardLivre.removeAt(index);
-                          String isbn = (this.listCardLivre[index] as CardLivre).cl_livre.data_ISBN;
+                          // on supprimer le dataLivre
                           for(int i = 0; i < this.listDataLivre.length; i ++){
                             if(this.listDataLivre[i].data_ISBN == isbn){
                               this.listDataLivre.removeAt(i);
@@ -294,8 +304,8 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         onPressed: (){
                           setState(() {
                             nbrFavoris --;
-                            listCardLivre.removeAt(index);
                             String isbn = (this.listCardLivre[index] as CardLivre).cl_livre.data_ISBN;
+                            listCardLivre.removeAt(index);
                             for(int i = 0; i < this.listDataLivre.length; i ++){
                               if(this.listDataLivre[i].data_ISBN == isbn){
                                 this.listDataLivre.removeAt(i);
@@ -340,8 +350,8 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                           title: new Text("Supprimer"),
                           onPressed: (){
                             setState(() {
-                              listCardEnvie.removeAt(index);
                               String isbn = (this.listCardEnvie[index] as CardLivre).cl_livre.data_ISBN;
+                              listCardEnvie.removeAt(index);
                               for(int i = 0; i < this.listDataLivre.length; i ++){
                                 if(this.listDataLivre[i].data_ISBN == isbn){
                                   this.listDataLivre.removeAt(i);
@@ -411,10 +421,11 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               title: new Text(this.listString[this.selectedIndex], style: new TextStyle(color: Colors.white),),
               elevation: 10,
               actions: [
+                new IconButton(icon: new Icon(Icons.assessment_outlined), onPressed: voirStat, color: Colors.white),
                 new IconButton(icon: new Icon(Icons.help), onPressed: getHelp2, color: Colors.white),
                 new PopupMenuButton <int> (
                   onSelected: (int selected){ trier(selected);},
-                  icon: new Icon(Icons.sort),
+                  icon: new Icon(Icons.sort), // Icons.toc
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<int>> [
                     PopupMenuItem(child: new Text("Trier les livre par:       ")),
                     PopupMenuItem( value: 0, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.timer_outlined, color: Colors.green,),  new Container(width: 15), new Text("Dernier ajout")],)),
