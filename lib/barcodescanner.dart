@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bar_code_scanner/stat.dart';
 import 'package:bar_code_scanner/widgetsPerso/textePerso.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -150,28 +151,37 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
   // fonction de trie pour l'onglet bibliothèque
   void trier(int option){
+    // le tableau a trier selon le volet selectionné
+    List<Widget> aTrier;
+    if(selectedIndex == 0 || selectedIndex == 1){
+      aTrier = this.listCardLivre;
+    }
+    else {
+      aTrier = this.listCardEnvie;
+    }
+    // lancement du tri
     setState(() {
       // ajouter recement
       if(option == 0) {
-        this.listCardLivre.sort( ( a, b ) {
+        aTrier.sort( ( a, b ) {
           return (a as CardLivre).cl_livre.data_dateAjout.compareTo((b as CardLivre).cl_livre.data_dateAjout);
         });
         print("Trier: Ajouter recement");
         // par titre
       } else if(option == 1){
-        this.listCardLivre.sort( ( a, b ) {
+        aTrier.sort( ( a, b ) {
           return (a as CardLivre).cl_livre.data_titre.toString().toLowerCase().compareTo((b as CardLivre).cl_livre.data_titre.toString().toLowerCase());
         });
         print("Trier: Par titre");
         // auteur par ordre alphabéthique
       } else if(option == 2){
-        this.listCardLivre.sort( ( a, b) {
+        aTrier.sort( ( a, b) {
           return (a as CardLivre).cl_livre.data_auteur.toString().toLowerCase().compareTo((b as CardLivre).cl_livre.data_auteur.toString().toLowerCase());
         });
         print("Trier: Par auteur");
         // livres lus
       } else if(option == 3){
-        this.listCardLivre.sort( ( a, b ) {
+        aTrier.sort( ( a, b ) {
           if(!(a as CardLivre).cl_livre.data_lu && (b as CardLivre).cl_livre.data_lu){
             return 1;
           }
@@ -183,13 +193,13 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         print("Trier: Si lu ou pas");
         // inverse
       } else if(option == 4){
-        this.listCardLivre.sort( ( a, b ) {
+        aTrier.sort( ( a, b ) {
           return 1;
         });
         print("Trier: Ordre inverse");
         // met les favoris au dessus
       } else if(option == 5){
-        this.listCardLivre.sort( ( a, b ) {
+        aTrier.sort( ( a, b ) {
           if(!(a as CardLivre).cl_livre.data_favori && (b as CardLivre).cl_livre.data_favori){
             return 1;
           }
@@ -212,7 +222,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     }));
   }
 
-  
+
   @override
   Widget build(BuildContext context) {
 
@@ -438,6 +448,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               actions: [
                 new IconButton(icon: new Icon(Icons.assessment_outlined), onPressed: voirStat, color: Colors.white),
                 new IconButton(icon: new Icon(Icons.help), onPressed: getHelp2, color: Colors.white),
+                // popup menu pour trier
                 new PopupMenuButton <int> (
                   onSelected: (int selected){ trier(selected);},
                   icon: new Icon(Icons.sort), // Icons.toc
@@ -447,6 +458,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                     PopupMenuItem(value: 1, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.edit, color: Colors.green,), new Container(width: 15), new Text("Par titre")],)),
                     PopupMenuItem(value: 2, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.people, color: Colors.green,), new Container(width: 15), new Text("Par auteur")],)),
                     PopupMenuItem(value: 3, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.book, color: Colors.green,), new Container(width: 15), new Text("Les livres lus")],)),
+                    PopupMenuItem(value: 5, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.favorite, color: Colors.green,), new Container(width: 15), new Text("Les favoris")],)),
                     PopupMenuItem(value: 4, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.autorenew_rounded, color: Colors.green,), new Container(width: 15), new Text("Inverser")],)),
                   ],
                 )

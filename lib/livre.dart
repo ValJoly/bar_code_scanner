@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'widgetsPerso/textePerso.dart';
@@ -85,8 +86,8 @@ class _LivreState extends State<Livre>{
         centerTitle: true,
       ),
       body: !pageChargee? new Center(child: new SizedBox(width: 100.0, height: 100.0, child: new CircularProgressIndicator(strokeWidth: 10.0,),)) : new SingleChildScrollView(
-        padding: EdgeInsets.all(largeur*0.05),
-        child: new Column(
+          padding: EdgeInsets.all(largeur*0.05),
+          child: new Column(
           children: [
             new Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +156,6 @@ class _LivreState extends State<Livre>{
                       new TextePerso("A La Bibliothèque", textScaleFactor: 1.1,),
                       new Switch(value: ajouterA, onChanged: (bool b){ setState(() { ajouterA = b; if(b) { lu  = false; } });}, // un livre des envies n'est a priori pas encore lu ?
                         activeColor: Colors.amber,
-
                         inactiveThumbColor: Colors.lightGreen,
                         inactiveTrackColor: Colors.lightGreen[300],
                       ),
@@ -165,6 +165,7 @@ class _LivreState extends State<Livre>{
                 ],
               ),
             ),
+            // synopsis du livre
             new Container(height: 10.0,),
             new Card(
               elevation: 15.0,
@@ -175,7 +176,8 @@ class _LivreState extends State<Livre>{
                   children: [
                     new TextePerso("Synopsis: ", fontWeight: FontWeight.bold, textScaleFactor: 1.2),
                     new Container(height: 5.0,),
-                    new TextePerso(""+this.s_synopsis)
+                    new TextePerso(""+this.s_synopsis),
+                    new Container(height: 5.0,),
                   ],
                 ),
               ),
