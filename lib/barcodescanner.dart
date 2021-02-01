@@ -22,37 +22,38 @@ class BarCodeScanner extends StatefulWidget {
 class _BarCodeScannerState extends State<BarCodeScanner> {
   String _scanBarcode = 'Unknown';
 
-  // ne plus afficher
+  // ne plus afficher l'aide au lancement de l'appli
   bool nePlusAfficher = false;
 
-  // volet selectioné parmis les 3
+  // indice du volet selectioné parmis les 3 (bibliothèque, favoris ou envies
   int selectedIndex = 0;
 
-  // nombre de favoris
+  // nombre de favoris --> utile pour build la liste dans l'onglet fav
   int nbrFavoris;
 
   // liste des livres
-  List<DataLivre> listDataLivre =[];
-  List<Widget> listCardLivre = [];
-  List<Widget> listCardEnvie = [];
+  List<DataLivre> listDataLivre =[];  // objet Livre qui stockent les données
+  List<Widget> listCardLivre = [];    // widgets contenus dans le liste view de l'onglet BU et fav
+  List<Widget> listCardEnvie = [];    // widgets contenus dans le liste view de l'onglet envie
 
 
-  // liste des string pour la AppBar
+  // liste des string pour la AppBar selon l'onglet selectionné
   List<String> listString = ["Ma Biblihothèque", "Mes Favoris", "Mes Envies"];
-  // liste des couleurs pour les Volets
+  // liste des couleurs pour les différents volets
   List<Color> listColor = [Colors.green, Colors.green, Colors.amber];
 
 
+  // fonction lancée au lancement de la vue principale
   @override
   void initState(){
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_){
+      // affiche l'aide pour la vue principale
       getHelp2();
     });
   }
 
-
-
+  // fonction pour le scanner de code bar
   startBarcodeScanStream() async {
     FlutterBarcodeScanner.getBarcodeStreamReceiver(
         "#ff6666", "Cancel", true, ScanMode.BARCODE)
@@ -81,14 +82,21 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     _scanBarcode = barcodeScanRes;
     final result = await Navigator.push(
         context,
+        // on affiche la page du livre
+        // info = false --> on affiche le livre pour potentiellement l'ajouter à sa biblihothèque
+        // info = true --> on affiche juste les détails du livre
         MaterialPageRoute(builder: (context) => Livre(_scanBarcode, false))
     );
 
     print("\n\n\n\n\n\n\n\n\n"+"$result");
 
     setState(() {
+      // Si l'utilisateur appuie sur terminer sur la vue Livre alors on a un resultat
+      // on instancie un objet avec les infos
       DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"]);
+      // on l'ajoute aux données
       listDataLivre.add(monLivre);
+      // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
       if(result["Envie"]){
         listCardEnvie.add(new CardLivre(monLivre));
       }
@@ -99,7 +107,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
   }
 
-
+// affiche l'aide
   Future<Null> getHelp2() async{
     return showDialog(
         context: context,
@@ -140,23 +148,27 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     );
   }
 
+  // fonction de trie pour l'onglet bibliothèque
   void trier(int option){
-    print("je trie avec l'option "+option.toString());
     setState(() {
       // ajouter recement
       if(option == 0) {
         this.listCardLivre.sort( ( a, b ) {
           return (a as CardLivre).cl_livre.data_dateAjout.compareTo((b as CardLivre).cl_livre.data_dateAjout);
         });
+        print("Trier: Ajouter recement");
+        // par titre
       } else if(option == 1){
         this.listCardLivre.sort( ( a, b ) {
           return (a as CardLivre).cl_livre.data_titre.toString().toLowerCase().compareTo((b as CardLivre).cl_livre.data_titre.toString().toLowerCase());
         });
+        print("Trier: Par titre");
         // auteur par ordre alphabéthique
       } else if(option == 2){
         this.listCardLivre.sort( ( a, b) {
           return (a as CardLivre).cl_livre.data_auteur.toString().toLowerCase().compareTo((b as CardLivre).cl_livre.data_auteur.toString().toLowerCase());
         });
+        print("Trier: Par auteur");
         // livres lus
       } else if(option == 3){
         this.listCardLivre.sort( ( a, b ) {
@@ -168,11 +180,13 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
           }
           return 0;
         });
+        print("Trier: Si lu ou pas");
         // inverse
       } else if(option == 4){
         this.listCardLivre.sort( ( a, b ) {
           return 1;
         });
+        print("Trier: Ordre inverse");
         // met les favoris au dessus
       } else if(option == 5){
         this.listCardLivre.sort( ( a, b ) {
@@ -184,20 +198,21 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
           }
           return 0;
         });
+        print("Trier: Favoris au dessus");
       }
     });   // fin du setstate
     print("\n\n\n liste triée");
   }
 
+
+  // fonction pour lancer la vue des stats de l'utilisateur
   void voirStat(){
     Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
       return new Stat(listDataLivre);
     }));
   }
 
-
-
-
+  
   @override
   Widget build(BuildContext context) {
 

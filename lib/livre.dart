@@ -13,7 +13,7 @@ class Livre extends StatefulWidget{
   String m_isbn = "Inconnu";
   // sert a savoir pour quelle raison on affiche le livre
   // info = true => on affiche juste les details du livre
-  // info= false => on affiche le livre en vu de l'afficher peut être
+  // info= false => on affiche le livre en vu de l'ajouter peut être
   bool m_info;
 
   // constructeur
@@ -29,15 +29,20 @@ class Livre extends StatefulWidget{
 
 
 
+
 class _LivreState extends State<Livre>{
 
   // indique quand la page a finie de charger
   bool pageChargee = false;
   // récupère les infos de la checkBox
   bool lu = false;
-  // si on affiche juste les infos ou veut pouvoir ajouter le livre
+  // sert a savoir pour quelle raison on affiche le livre
+  // info = true => on affiche juste les details du livre
+  // info= false => on affiche le livre en vu de l'ajouter peut être
   bool s_info;
-  // bibliothèque = false et envie = true
+  // dans quelle catégorie on va ajouter le livre
+  // bibliothèque = false
+  // envie = true
   bool ajouterA = false;
 
   // attributs du state
@@ -59,6 +64,7 @@ class _LivreState extends State<Livre>{
   @override
   void initState() {
     super.initState();
+    // on fait la cherche des infos avec l'isbn
     getInfo();
   }
 
@@ -180,7 +186,7 @@ class _LivreState extends State<Livre>{
     );
   }
 
-  // méthode quand on appuie sur le bouton terminer
+  // méthode quand on appuie sur le bouton terminer --> ajouter le livre
   void terminer(){
     var retour = {'Titre': this.s_titre,'Auteur': this.s_auteur, 'DatePublication': this.s_datePublication, 'Editeur': this.s_editeur, 'ISBN': this.s_ISBN, "UrlImage": this.s_urlImage, "Synopsis": this.s_synopsis, "Lu": false, "Envie": ajouterA };
     Navigator.pop(context, retour);
