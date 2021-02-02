@@ -28,15 +28,18 @@ class Stat extends StatelessWidget {
   // data du circular
   List<CircularStackEntry> circular2;
 
-  // pour la sparkline
-  var sparkline = [0.0, 1.0, 1.5, 2.0, 0.0, 0.0, -0.5, -1.0, -0.5, 0.0, 0.0];
+  // pour la sparkline --> ca c'est les ordonnées
+  // celle ci c'est pour la démo
+  var sparkline = [2.0, 1.0, 1.5, 2.0, 0.0, 0.0, -0.5, -1.0, -0.5, 0.0, 0.0];
+  // celle ci c'est pour le swag
+  var sparklineV2 = [0.0];
 
 
   // constructeur
   Stat(List<DataLivre> listDataLivre){
     // données
     data = listDataLivre;
-    // on compte
+    // on compte les envies, livres, etc...
     nbrLivre = 0;
     nbrEnvie = 0;
     nbrLu = 0;
@@ -51,7 +54,39 @@ class Stat extends StatelessWidget {
         nbrLu ++;
       }
     }
-    // on ajoute au entrée du circular
+    // maintenant pour l'historique
+    DateTime lePlusVieux = data[0].data_dateAjout;
+    DateTime lePlusRecent = data[0].data_dateAjout;
+    // on determine la date du plus vieux ajout et du plus recent
+    for(int i = 0; i < data.length ; i++){
+      if(data[i].data_dateAjout.isBefore(lePlusVieux)){
+        lePlusVieux = data[i].data_dateAjout;
+      }
+      if(data[i].data_dateAjout.isAfter(lePlusRecent)){
+        lePlusRecent = data[i].data_dateAjout;
+      }
+    }
+    // nombre de jour qui les sépare
+    int nbrJour = lePlusVieux.difference(lePlusRecent).inDays;
+    print("Nombre de jour entre les deux $nbrJour");
+    // maintenant on va construire le tableau pour le graphe
+    // autant de données que de jour entre les deux
+    // et à chaque jour on associe le nombre de livre qui ont été ajouté ce jour la
+    // leplusVieux va nous servir de jour courant pour la compraraison
+    DateTime jourEnCour = lePlusVieux;
+    for(int i = 0; i<nbrJour+1; i++){
+      double nbrLivreAjouteCeJour = 0.0;
+      // on compare tous les livres de la liste au jour en cours et on compte combien ont été ajouté ce jour la
+      for (DataLivre livre in data) {
+        if(jourEnCour.day == livre.data_dateAjout.day && jourEnCour.month == livre.data_dateAjout.month && jourEnCour.year == livre.data_dateAjout.year){
+          nbrLivreAjouteCeJour += 1.0;
+        }
+      }
+      sparklineV2.add(nbrLivreAjouteCeJour);
+      jourEnCour = jourEnCour.add(new Duration(days: 1));
+    }
+
+    // on ajoute au entrée du circular (celui en haut a gauche de la vue)
     circular = <CircularStackEntry>[
       new CircularStackEntry(
         <CircularSegmentEntry>[
@@ -70,7 +105,7 @@ class Stat extends StatelessWidget {
           temp = data.elementAt(i).data_dateAjout;
         }
     }
-    // circular 2
+    // circular 2 (en bas de la vue)
     circular2 = <CircularStackEntry>[
       new CircularStackEntry(
         <CircularSegmentEntry>[
@@ -116,6 +151,7 @@ class Stat extends StatelessWidget {
                              new Container(height: 10,),
                              new AnimatedCircularChart(
                                key: _chartKey,
+                               duration: new Duration(seconds: 3),
                                size: new Size(largeur* 0.35, largeur * 0.35),
                                initialChartData: circular,
                                chartType: CircularChartType.Pie,
@@ -169,7 +205,7 @@ class Stat extends StatelessWidget {
                          new TextePerso("Historique", textScaleFactor: 1.5, fontWeight: FontWeight.bold,),
                          new Divider(height: 20, endIndent: 10.0, indent: 10.0, thickness: 1.5,),
                          new Sparkline(
-                           data: sparkline,
+                           data: sparklineV2,
                            fillMode: FillMode.below,
                            fillGradient: new LinearGradient(
                              begin: Alignment.topCenter,
@@ -195,6 +231,7 @@ class Stat extends StatelessWidget {
                            children: [
                              new AnimatedCircularChart(
                                key: key2,
+                               duration: new Duration(seconds: 3),
                                size: new Size(largeur* 0.35, largeur * 0.35),
                                initialChartData: circular2,
                                chartType: CircularChartType.Pie,

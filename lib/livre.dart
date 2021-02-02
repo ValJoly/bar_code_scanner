@@ -78,11 +78,13 @@ class _LivreState extends State<Livre>{
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: !pageChargee || this.s_info ? null :  new FloatingActionButton.extended(
           label: new Text("Ajouter"),
+          backgroundColor: ajouterA ? Colors.amber : Colors.green,
           splashColor: Colors.white,
           onPressed: terminer,
       ),
       appBar: new AppBar(
-        title: new Text("Votre livre : "),
+        title: ajouterA ? new Text("Votre envie : ") : new Text("Votre livre : "),
+        backgroundColor: ajouterA ? Colors.amber : Colors.green,
         centerTitle: true,
       ),
       body: !pageChargee? new Center(child: new SizedBox(width: 100.0, height: 100.0, child: new CircularProgressIndicator(strokeWidth: 10.0,),)) : new SingleChildScrollView(
@@ -219,6 +221,8 @@ class _LivreState extends State<Livre>{
 
   // méthode récupère les infos du livre via API
   void getInfo() async {
+    print("\nRecherche des infos du livre\n");
+
     bool repOpenLibrary = false;
     bool repGoogle = false;
 
@@ -227,18 +231,24 @@ class _LivreState extends State<Livre>{
 
     // replissage des données si possible
     if(googleBooks.statusCode == 200){
+      print("\nAPI google: Resultat trouvé\n");
       repGoogle = true;
       var reponse = convert.jsonDecode(googleBooks.body);
       setState(() {
-        this.s_titre = (((reponse["items"])[0])["volumeInfo"])["title"].toString() == "null" ? this.s_titre : (((reponse["items"])[0])["volumeInfo"])["title"].toString();
-        this.s_auteur = ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString() == "null" ? this.s_auteur : ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString();
-        //this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString() == "null" ? this.s_datePublication : (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10);
-        this.s_editeur = (((reponse["items"])[0])["volumeInfo"])["publisher"].toString() == "null" ? this.s_editeur : (((reponse["items"])[0])["volumeInfo"])["publisher"].toString();
-        this.s_synopsis = (((reponse["items"])[0])["volumeInfo"])["description"].toString() == "null" ? this.s_synopsis : (((reponse["items"])[0])["volumeInfo"])["description"].toString();
+        try {
+          this.s_titre = (((reponse["items"])[0])["volumeInfo"])["title"].toString() == "null" ? this.s_titre : (((reponse["items"])[0])["volumeInfo"])["title"].toString();
+          this.s_auteur = ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString() == "null" ? this.s_auteur : ((((reponse["items"])[0])["volumeInfo"])["authors"])[0].toString();
+          //this.s_datePublication = (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString() == "null" ? this.s_datePublication : (((reponse["items"])[0])["volumeInfo"])["publishedDate"].toString().substring(0, 10);
+          this.s_editeur = (((reponse["items"])[0])["volumeInfo"])["publisher"].toString() == "null" ? this.s_editeur : (((reponse["items"])[0])["volumeInfo"])["publisher"].toString();
+          this.s_synopsis = (((reponse["items"])[0])["volumeInfo"])["description"].toString() == "null" ? this.s_synopsis : (((reponse["items"])[0])["volumeInfo"])["description"].toString();
+        }
+        catch(erreur){
+          print("\nErreur lors du décodage du json\n");
+        }
       });
     }
     else {
-      print('Request failed with status: ${googleBooks.statusCode}.');
+      print("\nAPI google: Aucun resultats trouvés, erreur ${googleBooks.statusCode}\n");
     }
 
     // API OnperLibrary
@@ -246,20 +256,27 @@ class _LivreState extends State<Livre>{
 
     // Si complète les données avec une deuxième API au cas ou il en manquerait
     if (onpenLibrary.statusCode == 200) {
+      print("\nAPI openLibrary: Resultat trouvé\n");
       repOpenLibrary = true;
       var jsonResponse = convert.jsonDecode(onpenLibrary.body);
       setState(() {
-        this.s_titre = this.s_titre == "Inconnu" ? jsonResponse['title'] : this.s_titre;
-        this.s_datePublication = this.s_datePublication == "Inconnue" ?jsonResponse['publish_date'] : this.s_datePublication;
-        this.s_editeur = this.s_editeur == "Inconnu" ? (jsonResponse['publishers'])[0] : this.s_editeur;
+        try {
+          this.s_titre = this.s_titre == "Inconnu" ? jsonResponse['title'] : this.s_titre;
+          this.s_datePublication = this.s_datePublication == "Inconnue" ?jsonResponse['publish_date'] : this.s_datePublication;
+          this.s_editeur = this.s_editeur == "Inconnu" ? (jsonResponse['publishers'])[0] : this.s_editeur;
+        }
+        catch(erreur){
+          print("\nErreur lors du décodage du json\n");
+        }
       });
     }
     else {
-      print('Request failed with status: ${onpenLibrary.statusCode}.');
+      print("\nAPI openLibrary: Aucun resultats trouvés, erreur ${onpenLibrary.statusCode}\n");
     }
 
     // si on a au moins une des réponse
     if(repGoogle || repOpenLibrary){
+      print("\nFin getInfo: Informations trouvées par au moins une des APIs\n");
       setState(() {
         this.s_urlImage = "http://covers.openlibrary.org/b/isbn/" + this.s_ISBN + "-M.jpg";
         pageChargee = true;
@@ -267,11 +284,9 @@ class _LivreState extends State<Livre>{
     }
     // si on a aucune réponse on quitte
     else {
+      print("Fin getInfo: Aucunes infos trouvées avec les APIs");
       pasTrouve();
     }
-
-    print("Get info terminé");
-
   }
 
 

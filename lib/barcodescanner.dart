@@ -58,7 +58,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   startBarcodeScanStream() async {
     FlutterBarcodeScanner.getBarcodeStreamReceiver(
         "#ff6666", "Cancel", true, ScanMode.BARCODE)
-        .listen((barcode) => print(barcode));
+        .listen((barcode) => print("\nISBN du livre: "+barcode+"\n"));
   }
 
 
@@ -164,7 +164,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       // ajouter recement
       if(option == 0) {
         aTrier.sort( ( a, b ) {
-          return (a as CardLivre).cl_livre.data_dateAjout.compareTo((b as CardLivre).cl_livre.data_dateAjout);
+          return -(a as CardLivre).cl_livre.data_dateAjout.compareTo((b as CardLivre).cl_livre.data_dateAjout);
         });
         print("Trier: Ajouter recement");
         // par titre
@@ -252,7 +252,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         title: new Text("Voir les détails"),
                         onPressed: (){
                           Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
-                            return new Livre(_scanBarcode, true);
+                            return new Livre(listDataLivre[index].data_ISBN, true);
                           }));
                         },
                         trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
@@ -319,7 +319,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                           title: new Text("Voir les détails"),
                           onPressed: (){
                             Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
-                              return new Livre(_scanBarcode, true);
+                              return new Livre(listDataLivre[index].data_ISBN, true);
                             }));
                           },
                           trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
@@ -366,7 +366,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                             title: new Text("Voir les détails"),
                             onPressed: (){
                               Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
-                                return new Livre(_scanBarcode, true);
+                                return new Livre((listCardEnvie[index] as CardLivre).cl_livre.data_ISBN, true);
                               }));
                             },
                             trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
