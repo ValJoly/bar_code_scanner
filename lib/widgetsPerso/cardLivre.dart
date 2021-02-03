@@ -35,6 +35,9 @@ class _CardLivreState extends State<CardLivre>{
     this.s_livre  = livre;
   }
 
+  DataLivre getDataLivre() {
+    return this.s_livre;
+  }
 
 @override
   Widget build(BuildContext context) {
