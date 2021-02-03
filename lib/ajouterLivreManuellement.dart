@@ -28,7 +28,7 @@ class _AjouterLivreManuellement extends State<AjouterLivreManuellement> {
   String auteur = "Inconnu";
   String datePublication = "Iconnue";
   String editeur = "Inconnu";
-  String isbn = "Inconnu";
+  String isbn = "-1";
   // dans quelle catégorie on va ajouter le livre
   // bibliothèque = false
   // envie = true
@@ -39,7 +39,7 @@ class _AjouterLivreManuellement extends State<AjouterLivreManuellement> {
 
   // méthode quand on appuie sur le bouton terminer --> ajouter le livre
   void terminer(){
-    var retour = {'Titre': titre,'Auteur': auteur, 'DatePublication': datePublication, 'Editeur': this.editeur, 'ISBN': isbn, "UrlImage": "vide", "Synopsis": synopsis, "Lu": lu, "Envie": ajouterA };
+    var retour = {'Titre': titre,'Auteur': auteur, 'DatePublication': datePublication, 'Editeur': this.editeur, 'ISBN': isbn, "UrlImage": "Inconnue", "Synopsis": synopsis, "Lu": lu, "Envie": ajouterA };
     Navigator.pop(context, retour);
   }
 
@@ -113,17 +113,6 @@ class _AjouterLivreManuellement extends State<AjouterLivreManuellement> {
                 new TextePerso("Editeur : ", textScaleFactor: 1.3, fontWeight: FontWeight.bold,),
                 new Container(width: 10,),
                 Expanded(child: new TextField(onChanged: (texte){editeur = texte;}, decoration: InputDecoration(border: OutlineInputBorder(), labelText: "entrer l'éditeur", isDense: true),)),
-              ],
-            ),
-
-            new Container(height: 5),
-
-            // row ISBN
-            new Row(
-              children: [
-                new TextePerso("ISBN : ", textScaleFactor: 1.3, fontWeight: FontWeight.bold,),
-                new Container(width: 10,),
-                Expanded(child: new TextField(onChanged: (texte){isbn = texte;}, keyboardType: TextInputType.number, inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),], decoration: InputDecoration(border: OutlineInputBorder(), labelText: "entrer ISBN", isDense: true),)),
               ],
             ),
 

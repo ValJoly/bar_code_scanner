@@ -70,6 +70,7 @@ class _LivreState extends State<Livre>{
     this.s_info = info;
     // si on affiche pour ajouter <=> on connait pas les données mais juste l'isbn et info = false
     if (!info) {
+      print("On souhaite vient de scanner un livre");
       this.s_ISBN = isbn;
       this.s_info = info;
       getInfo();
@@ -78,11 +79,13 @@ class _LivreState extends State<Livre>{
     else {
       // si livre = null <=> on connait juste le isbn il faut lancer une recherche
       if(livre == null){
+        print("On veut les infos d'un livre dont le isbn donne un résultat via l'API");
         this.s_info = info;
         this.s_ISBN = isbn;
         getInfo();
       }
       else {
+        print("On veut les infos d'un livre qu'on a ajouté à la main");
         this.s_info = info;
         this.s_titre = livre.data_titre;
         this.s_auteur = livre.data_auteur;
@@ -124,7 +127,7 @@ class _LivreState extends State<Livre>{
               children: <Widget> [
                 new Card(
                   elevation: 10.0,
-                  child: new Image.network(
+                  child: this.s_urlImage == "Inconnue" ? null : new Image.network(
                     this.s_urlImage,
                     scale: 1.3,
                     //height: MediaQuery.of(context).size.height * 0.25,
