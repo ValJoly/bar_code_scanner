@@ -18,7 +18,7 @@ class DataLivre {
   DateTime data_dateAjout;
 
   // constructeur
-  DataLivre(String titre, String auteur, String datePublication, String editeur, String isbn, String urlImage, String synopsis, bool lu, bool envie){
+  DataLivre(String titre, String auteur, String datePublication, String editeur, String isbn, String urlImage, String synopsis, bool lu, bool envie, DateTime dateAjout){
     this.data_titre = titre;
     this.data_auteur = auteur;
     this.data_datePublication = datePublication;
@@ -29,7 +29,7 @@ class DataLivre {
     this.data_favori = false;
     this.data_lu = lu;
     this.data_envie = envie;
-    this.data_dateAjout = DateTime.now();
+    this.data_dateAjout = dateAjout;
   }
 
 }

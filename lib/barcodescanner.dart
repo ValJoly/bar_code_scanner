@@ -94,7 +94,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     setState(() {
       // Si l'utilisateur appuie sur terminer sur la vue Livre alors on a un resultat
       // on instancie un objet avec les infos
-      DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"]);
+      DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
       // on l'ajoute aux données
       listDataLivre.add(monLivre);
       // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
@@ -451,25 +451,40 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                 // popup menu pour trier
                 new PopupMenuButton <int> (
                   onSelected: (int selected){ trier(selected);},
-                  icon: new Icon(Icons.sort), // Icons.toc
+                  icon: new Icon(Icons.sort, color: Colors.white,), // Icons.toc
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<int>> [
                     PopupMenuItem(child: new Text("Trier les livre par:       ")),
-                    PopupMenuItem( value: 0, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.timer_outlined, color: Colors.green,),  new Container(width: 15), new Text("Dernier ajout")],)),
-                    PopupMenuItem(value: 1, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.edit, color: Colors.green,), new Container(width: 15), new Text("Par titre")],)),
-                    PopupMenuItem(value: 2, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.people, color: Colors.green,), new Container(width: 15), new Text("Par auteur")],)),
-                    PopupMenuItem(value: 3, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.book, color: Colors.green,), new Container(width: 15), new Text("Les livres lus")],)),
-                    PopupMenuItem(value: 5, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.favorite, color: Colors.green,), new Container(width: 15), new Text("Les favoris")],)),
-                    PopupMenuItem(value: 4, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.autorenew_rounded, color: Colors.green,), new Container(width: 15), new Text("Inverser")],)),
+                    PopupMenuItem( value: 0, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.timer_outlined, color: this.listColor[selectedIndex],),  new Container(width: 15), new Text("Dernier ajout")],)),
+                    PopupMenuItem(value: 1, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.edit, color: this.listColor[selectedIndex],), new Container(width: 15), new Text("Par titre")],)),
+                    PopupMenuItem(value: 2, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.people, color: this.listColor[selectedIndex],), new Container(width: 15), new Text("Par auteur")],)),
+                    PopupMenuItem(value: 3, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.book, color: this.listColor[selectedIndex],), new Container(width: 15), new Text("Les livres lus")],)),
+                    PopupMenuItem(value: 5, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.favorite, color: this.listColor[selectedIndex],), new Container(width: 15), new Text("Les favoris")],)),
+                    PopupMenuItem(value: 4, child: new Row(mainAxisAlignment: MainAxisAlignment.start ,children: [new Icon(Icons.autorenew_rounded, color: this.listColor[selectedIndex],), new Container(width: 15), new Text("Inverser")],)),
                   ],
                 )
               ],
             ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // pourquoi pas changer sa position
-            floatingActionButton: new FloatingActionButton(
-              onPressed: () => scanBarcodeNormal(),
+            floatingActionButton: FloatingActionButton(
               elevation: 20.0,
-              tooltip: "Chercher un nouveau livre",
-              child: new Icon(Icons.add, color: Colors.white,),
+              child: new FocusedMenuHolder(
+                  child: new Icon(Icons.add, color: Colors.white,),
+                  onPressed: () => scanBarcodeNormal(),
+                  menuItemExtent: 60.0,
+                  menuItems: <FocusedMenuItem> [
+                    new FocusedMenuItem(
+                        title: new TextePerso("Scanner Livre", textScaleFactor: 1.2,),
+                        trailingIcon: new Icon(Icons.qr_code_scanner, color: this.listColor[selectedIndex],),
+                        onPressed: () => scanBarcodeNormal(),
+                    ),
+                    new FocusedMenuItem(
+                      title: new TextePerso("Ajouter à la main", textScaleFactor: 1.2,),
+                      trailingIcon: new Icon(Icons.pets_rounded, color: this.listColor[selectedIndex],),
+                      onPressed: (){
+
+                      },
+                    ),
+                  ]
+              ),
             ),
             body: new Builder(builder: (BuildContext context) {
               return widgetList.elementAt(selectedIndex);
