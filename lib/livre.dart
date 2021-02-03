@@ -125,37 +125,42 @@ class _LivreState extends State<Livre>{
             new Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget> [
-                new Card(
-                  elevation: 10.0,
-                  child: this.s_urlImage == "Inconnue" ? null : new Image.network(
-                    this.s_urlImage,
-                    scale: 1.3,
-                    //height: MediaQuery.of(context).size.height * 0.25,
-                  ),
-                ),
+
                 new Expanded(
-                  child: new Card(
-                    child: new Container(
-                        height: MediaQuery.of(context).size.height * 0.25,
-                        margin: EdgeInsets.only(left: 8.0, top: 8.0),
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget> [
-                            // les deux "" devant titre et auteur servent juste à éviter un bug
-                            // si le titre ou l'auteur ne sont pas trouvé (très rare je suis daccord...)
-                            // alors l'appli crash psq le widget Text a besoin de data pour s'instancier
-                            new TextePerso(""+this.s_titre, fontWeight: FontWeight.bold),
-                            new Container(height: 10.0,),
-                            new TextePerso(""+this.s_auteur),
-                            new Container(height: 7.0,),
-                            new TextePerso("Date de publication: "+this.s_datePublication),
-                            new Container(height: 7.0,),
-                            new TextePerso("Editeur: "+this.s_editeur),
-                            new Container(height: 7.0,),
-                            new TextePerso("ISBN: "+this.s_ISBN),
-                          ],
-                        )
-                    ),
+                  child: Column(
+                    children: [
+                      new Card(
+                        elevation: 10.0,
+                        child: this.s_urlImage == "Inconnue" ? null : new Image.network(
+                          this.s_urlImage,
+                          scale: 1.3,
+                          //height: MediaQuery.of(context).size.height * 0.25,
+                        ),
+                      ),
+                      new Card(
+                        child: new Container(
+                            height: MediaQuery.of(context).size.height * 0.25,
+                            margin: EdgeInsets.only(left: 8.0, top: 8.0),
+                            child: new Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget> [
+                                // les deux "" devant titre et auteur servent juste à éviter un bug
+                                // si le titre ou l'auteur ne sont pas trouvé (très rare je suis daccord...)
+                                // alors l'appli crash psq le widget Text a besoin de data pour s'instancier
+                                new TextePerso(""+this.s_titre, fontWeight: FontWeight.bold),
+                                new Container(height: 10.0,),
+                                new TextePerso(""+this.s_auteur),
+                                new Container(height: 7.0,),
+                                new TextePerso("Date de publication: "+this.s_datePublication),
+                                new Container(height: 7.0,),
+                                new TextePerso("Editeur: "+this.s_editeur),
+                                new Container(height: 7.0,),
+                                new TextePerso("ISBN: "+this.s_ISBN),
+                              ],
+                            )
+                        ),
+                      ),
+                    ],
                   ),
                 )
               ],
