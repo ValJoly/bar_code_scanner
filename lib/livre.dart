@@ -227,7 +227,8 @@ class _LivreState extends State<Livre>{
                   ],
                 ),
               ),
-            )
+            ),
+            new Container(height: 80.0,),
           ],
         )
       )
