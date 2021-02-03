@@ -411,7 +411,20 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                                 return retour;
                               }));
                             },
-                            trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
+                            trailingIcon: new Icon(Icons.info_outline, color: Colors.amber,)
+                        ),
+                        new FocusedMenuItem(
+                            title: new Text("Basculer vers la bibliothèque"),
+                            onPressed: (){
+                              setState(() {
+                                listDataLivre.add(listDataEnvie.elementAt(index));
+                                listCardLivre.add(listCardEnvie.elementAt(index));
+                                listCardEnvie.removeAt(index);
+                                listDataEnvie.removeAt(index);
+                                saveBooks();
+                              });
+                            },
+                            trailingIcon: new Icon(Icons.subdirectory_arrow_left, color: Colors.amber,)
                         ),
                         new FocusedMenuItem(
                           title: new Text("Supprimer"),
