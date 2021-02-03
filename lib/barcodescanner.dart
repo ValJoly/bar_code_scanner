@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bar_code_scanner/ajouterLivreManuellement.dart';
 import 'package:bar_code_scanner/stat.dart';
 import 'package:bar_code_scanner/widgetsPerso/textePerso.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 import 'livre.dart';
+import 'ajouterLivreManuellement.dart';
 import 'widgetsPerso/cardLivre.dart';
 import 'mesObjets/dataLivre.dart';
 
@@ -478,9 +480,27 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                     ),
                     new FocusedMenuItem(
                       title: new TextePerso("Ajouter à la main", textScaleFactor: 1.2,),
-                      trailingIcon: new Icon(Icons.pets_rounded, color: this.listColor[selectedIndex],),
-                      onPressed: (){
-
+                      trailingIcon: new Icon(Icons.assignment_rounded, color: this.listColor[selectedIndex],),
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                            context,
+                            // on affiche la page pour ajouter manuellement un livre
+                            MaterialPageRoute(builder: (context) => AjouterLivreManuellement())
+                        );
+                        print("result de livre manuellement ${result["Titre"]}");
+                        // on instancie un objet avec les infos
+                        DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
+                        setState(() {
+                          // on l'ajoute aux données
+                          listDataLivre.add(monLivre);
+                          // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
+                          if(result["Envie"]){
+                            listCardEnvie.add(new CardLivre(monLivre));
+                          }
+                          else {
+                            listCardLivre.add(new CardLivre(monLivre));
+                          }
+                        });
                       },
                     ),
                   ]
