@@ -41,7 +41,6 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   final String uniqueKeyWishlist = 'myWishlist';
 
   // liste des livres
-  //List<DataLivre> listBibli = []; // list des livres que l'ont chargera au demarage
   List<DataLivre> listDataLivre =[];  // objet Livre qui stockent les données
   List<DataLivre> listDataEnvie =[];  // objet Livre (envie) qui stockent les données
   List<Widget> listCardLivre = [];    // widgets contenus dans le liste view de l'onglet BU et fav
@@ -115,9 +114,6 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       // Si l'utilisateur appuie sur terminer sur la vue Livre alors on a un resultat
       // on instancie un objet avec les infos
       DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
-
-
-      print(monLivre.toJson());
       // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
       if(result["Envie"]){
         listCardEnvie.add(new CardLivre(monLivre));
@@ -279,7 +275,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   // fonction pour lancer la vue des stats de l'utilisateur
   void voirStat(){
     Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
-      return new Stat(listDataLivre);
+      return new Stat(listDataLivre, listDataEnvie);
     }));
   }
 
@@ -355,6 +351,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         setState(() {
                           listDataLivre[index].data_lu = !listDataLivre[index].data_lu;
                         });
+                        saveBooks();
                         Scaffold.of(context).showSnackBar(new SnackBar(
                           content: listDataLivre[index].data_lu ? new Text("Marqué comme lu") : new Text("Marqué comme non lu") ,
                           backgroundColor: Colors.green,
@@ -516,7 +513,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         // on instancie un objet avec les infos
                         DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
                         setState(() {
-
+                          // on l'ajoute aux données
                           // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
                           if(result["Envie"]){
                             listCardEnvie.add(new CardLivre(monLivre));

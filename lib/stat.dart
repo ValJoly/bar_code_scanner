@@ -36,54 +36,50 @@ class Stat extends StatelessWidget {
 
 
   // constructeur
-  Stat(List<DataLivre> listDataLivre){
-    // données
-    data = listDataLivre;
+  Stat(List<DataLivre> listDataLivre, List<DataLivre> listDataEnvie){
+    print("constructeur");
     // on compte les envies, livres, etc...
-    nbrLivre = 0;
-    nbrEnvie = 0;
+    nbrLivre = listDataLivre.length.toDouble();
+    nbrEnvie = listDataEnvie.length.toDouble();
     nbrLu = 0;
-    for(int i = 0; i < data.length ; i++){
-      if(data.elementAt(i).data_envie){
-        nbrEnvie ++;
-      }
-      else{
-        nbrLivre ++;
-      }
-      if(data.elementAt(i).data_lu){
+    for(int i = 0; i < listDataLivre.length ; i++){
+      if(listDataLivre.elementAt(i).data_lu){
         nbrLu ++;
       }
     }
     // maintenant pour l'historique
-    DateTime lePlusVieux = data[0].data_dateAjout;
-    DateTime lePlusRecent = data[0].data_dateAjout;
-    // on determine la date du plus vieux ajout et du plus recent
-    for(int i = 0; i < data.length ; i++){
-      if(data[i].data_dateAjout.isBefore(lePlusVieux)){
-        lePlusVieux = data[i].data_dateAjout;
-      }
-      if(data[i].data_dateAjout.isAfter(lePlusRecent)){
-        lePlusRecent = data[i].data_dateAjout;
-      }
-    }
-    // nombre de jour qui les sépare
-    int nbrJour = lePlusVieux.difference(lePlusRecent).inDays;
-    print("Nombre de jour entre les deux $nbrJour");
-    // maintenant on va construire le tableau pour le graphe
-    // autant de données que de jour entre les deux
-    // et à chaque jour on associe le nombre de livre qui ont été ajouté ce jour la
-    // leplusVieux va nous servir de jour courant pour la compraraison
-    DateTime jourEnCour = lePlusVieux;
-    for(int i = 0; i<nbrJour+1; i++){
-      double nbrLivreAjouteCeJour = 0.0;
-      // on compare tous les livres de la liste au jour en cours et on compte combien ont été ajouté ce jour la
-      for (DataLivre livre in data) {
-        if(jourEnCour.day == livre.data_dateAjout.day && jourEnCour.month == livre.data_dateAjout.month && jourEnCour.year == livre.data_dateAjout.year){
-          nbrLivreAjouteCeJour += 1.0;
+    // on check si ya au moins un livre
+    if(listDataLivre.isNotEmpty){
+      DateTime lePlusVieux = listDataLivre[0].data_dateAjout;
+      DateTime lePlusRecent = listDataLivre[0].data_dateAjout;
+      // on determine la date du plus vieux ajout et du plus recent
+      for(int i = 0; i < listDataLivre.length ; i++){
+        if(listDataLivre[i].data_dateAjout.isBefore(lePlusVieux)){
+          lePlusVieux = listDataLivre[i].data_dateAjout;
+        }
+        if(listDataLivre[i].data_dateAjout.isAfter(lePlusRecent)){
+          lePlusRecent = listDataLivre[i].data_dateAjout;
         }
       }
-      sparklineV2.add(nbrLivreAjouteCeJour);
-      jourEnCour = jourEnCour.add(new Duration(days: 1));
+      // nombre de jour qui les sépare
+      int nbrJour = lePlusVieux.difference(lePlusRecent).inDays + 1;
+      print("Nombre de jour entre les deux $nbrJour");
+      // maintenant on va construire le tableau pour le graphe
+      // autant de données que de jour entre les deux
+      // et à chaque jour on associe le nombre de livre qui ont été ajouté ce jour la
+      // leplusVieux va nous servir de jour courant pour la compraraison
+      DateTime jourEnCour = lePlusVieux;
+      for(int i = 0; i<nbrJour; i++){
+        double nbrLivreAjouteCeJour = 0.0;
+        // on compare tous les livres de la liste au jour en cours et on compte combien ont été ajouté ce jour la
+        for (DataLivre livre in listDataLivre) {
+          if(jourEnCour.day == livre.data_dateAjout.day && jourEnCour.month == livre.data_dateAjout.month && jourEnCour.year == livre.data_dateAjout.year){
+            nbrLivreAjouteCeJour += 1.0;
+          }
+        }
+        sparklineV2.add(nbrLivreAjouteCeJour);
+        jourEnCour = jourEnCour.add(new Duration(days: 1));
+      }
     }
 
     // on ajoute au entrée du circular (celui en haut a gauche de la vue)
@@ -100,7 +96,7 @@ class Stat extends StatelessWidget {
     // on rempli les date
     ajourdhui = DateTime.now();
     DateTime temp = ajourdhui;
-    for(int i = 0 ; i < data.length ; i++){
+    for(int i = 0 ; i < listDataLivre.length ; i++){
         if(data.elementAt(i).data_dateAjout.isBefore(temp)){
           temp = data.elementAt(i).data_dateAjout;
         }
