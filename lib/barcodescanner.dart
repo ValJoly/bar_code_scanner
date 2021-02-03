@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:bar_code_scanner/ajouterLivreManuellement.dart';
 import 'package:bar_code_scanner/stat.dart';
@@ -14,6 +15,7 @@ import 'livre.dart';
 import 'ajouterLivreManuellement.dart';
 import 'widgetsPerso/cardLivre.dart';
 import 'mesObjets/dataLivre.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class BarCodeScanner extends StatefulWidget {
@@ -34,7 +36,12 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   // nombre de favoris --> utile pour build la liste dans l'onglet fav
   int nbrFavoris;
 
+  //Unique Key for Shared Preferences usage
+  final String uniqueKey = 'myBooks';
+  final String uniqueKeyWishlist = 'myWishlist';
+
   // liste des livres
+  //List<DataLivre> listBibli = []; // list des livres que l'ont chargera au demarage
   List<DataLivre> listDataLivre =[];  // objet Livre qui stockent les données
   List<DataLivre> listDataEnvie =[];  // objet Livre (envie) qui stockent les données
   List<Widget> listCardLivre = [];    // widgets contenus dans le liste view de l'onglet BU et fav
@@ -51,9 +58,19 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   @override
   void initState(){
     super.initState();
+
+    setState(() {
+      readBooks();
+      print('longueur de la list de livre');
+      print(listDataLivre.length);
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_){
       // affiche l'aide pour la vue principale
-      getHelp2();
+      if (listDataLivre.length + listDataEnvie.length > 0) {
+        getHelp2();
+      }
+
     });
   }
 
@@ -98,15 +115,19 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       // Si l'utilisateur appuie sur terminer sur la vue Livre alors on a un resultat
       // on instancie un objet avec les infos
       DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
-      // on l'ajoute aux données
+
+
+      print(monLivre.toJson());
       // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
       if(result["Envie"]){
         listCardEnvie.add(new CardLivre(monLivre));
         listDataEnvie.add(monLivre);
+        saveBooks();
       }
       else {
         listCardLivre.add(new CardLivre(monLivre));
         listDataLivre.add(monLivre);
+        saveBooks();
       }
     });
 
@@ -262,9 +283,34 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
     }));
   }
 
+  Future<void> saveBooks() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    sp.setString(uniqueKey        , json.encode(listDataLivre));
+    sp.setString(uniqueKeyWishlist, json.encode(listDataEnvie));
+  }
+
+  Future<void> populate() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    sp.setString(uniqueKey, "{ISBN: 9782266286381, title: Entre deux mondes, author: Olivier Norek, publish_date: Nov 08, 2018, editor: Pocket, imgUrl: https://covers.openlibrary.org/b/isbn/9782266286381-M.jpg, description: Pas disponible, add_date: 2021-02-03 20:16:00, favorite: false, read: false, wishlist: false}");
+  }
+
+  Future<void> readBooks() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    json.decode(sp.getString(uniqueKey)).forEach((map) => listDataLivre.add(new DataLivre.fromJson(map)));
+    json.decode(sp.getString(uniqueKeyWishlist)).forEach((map) => listDataEnvie.add(new DataLivre.fromJson(map)));
+
+    for(int i = 0; i < this.listDataLivre.length; i++) {
+      listCardLivre.add(new CardLivre(listDataLivre[i]));
+    }
+    for(int i = 0; i < this.listDataEnvie.length; i++) {
+      listCardEnvie.add(new CardLivre(listDataEnvie[i]));
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
+
 
     print("Début build barcodeScanner");
 
@@ -325,6 +371,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                           // on supprime le Card livre
                           listCardLivre.removeAt(index);
                           listDataLivre.removeAt(index);
+                          saveBooks();
                         });
                       },
                       trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
@@ -375,6 +422,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                             setState(() {
                               listCardEnvie.removeAt(index);
                               listDataEnvie.removeAt(index);
+                              saveBooks();
                             });
                           },
                           trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
@@ -468,15 +516,17 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         // on instancie un objet avec les infos
                         DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
                         setState(() {
-                          // on l'ajoute aux données
+
                           // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
                           if(result["Envie"]){
                             listCardEnvie.add(new CardLivre(monLivre));
                             listDataEnvie.add(monLivre);
+                            saveBooks();
                           }
                           else {
                             listCardLivre.add(new CardLivre(monLivre));
                             listDataLivre.add(monLivre);
+                            saveBooks();
                           }
                         });
                       },
