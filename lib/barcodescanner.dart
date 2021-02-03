@@ -304,14 +304,13 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
                     ),
                     new FocusedMenuItem(
-                      title: new Text("Ajouter / Supprimer comme lu"),
+                      title: listDataLivre[index].data_lu ? new Text("Supprimer des lus") : new Text("Ajouter aux lus"),
                       onPressed: (){
                         setState(() {
-                          //(this.listCardLivre[index] as CardLivre).cl_livre.data_lu = !(this.listCardLivre[index] as CardLivre).cl_livre.data_lu;
-                          listDataLivre[index].data_favori = listDataLivre[index].data_favori; 
+                          listDataLivre[index].data_lu = !listDataLivre[index].data_lu;
                         });
                         Scaffold.of(context).showSnackBar(new SnackBar(
-                          content: (this.listCardLivre[index] as CardLivre).cl_livre.data_lu ? new Text("Marqué comme lu") : new Text("Marqué comme non lu") ,
+                          content: listDataLivre[index].data_lu ? new Text("Marqué comme lu") : new Text("Marqué comme non lu") ,
                           backgroundColor: Colors.green,
                           // behavior: SnackBarBehavior.floating,
                           elevation: 10.0,
