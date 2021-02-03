@@ -164,14 +164,17 @@ class _AjouterLivreManuellement extends State<AjouterLivreManuellement> {
               children: [
                 new TextePerso("Synopsis : ", textScaleFactor: 1.3, fontWeight: FontWeight.bold,),
                 new Container(height: 3),
-                new TextField(
-                    onChanged: (texte){synopsis = texte;},
-                    maxLines: 7,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "synopsis du livre"
-                    )
-                )
+                new Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: new TextField(
+                      onChanged: (texte){synopsis = texte;},
+                      maxLines: 7,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "synopsis du livre"
+                      )
+                  ),
+                ),
               ],
             )
 
