@@ -105,7 +105,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         // on affiche la page du livre
         // info = false --> on affiche le livre pour potentiellement l'ajouter à sa biblihothèque
         // info = true --> on affiche juste les détails du livre
-        MaterialPageRoute(builder: (context) => Livre(_scanBarcode, false))
+        MaterialPageRoute(builder: (context) => Livre(_scanBarcode, false, null))
     );
 
     print("\n\n\n\n\n\n\n\n\n"+"$result");
@@ -338,7 +338,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                             }
                             // sinon on relance les détails
                             else {
-                              retour = new Livre(listDataLivre[index].data_ISBN, true);
+                              retour = new Livre(listDataLivre[index].data_ISBN, true, listDataLivre[index].data_dateAjout);
                             }
                             return retour;
                           }));
@@ -406,7 +406,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                                 }
                                 // sinon on relance les détails
                                 else {
-                                  retour = new Livre((listCardEnvie[index] as CardLivre).cl_livre.data_ISBN, true);
+                                  retour = new Livre((listCardEnvie[index] as CardLivre).cl_livre.data_ISBN, true, (listCardEnvie[index] as CardLivre).cl_livre.data_dateAjout);
                                 }
                                 return retour;
                               }));

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'mesObjets/dataLivre.dart';
 import 'widgetsPerso/textePerso.dart';
 
@@ -18,12 +19,14 @@ class Livre extends StatefulWidget{
   // info= false => on affiche le livre en vu de l'ajouter peut être
   bool m_info;
   DataLivre m_livre;
+  DateTime m_date;
 
   // constructeur pour afficher les détails
-  Livre(String isbn, bool info){
+  Livre(String isbn, bool info, DateTime date){
     this.m_isbn = isbn;
     this.m_info = info;
     this.m_livre = null;
+    this.m_date = date;
   }
 
   // surcharge du constructeur pour afficher les détails d'un livre ajouter à la main
@@ -35,7 +38,7 @@ class Livre extends StatefulWidget{
 
   // creatState
   @override
-  _LivreState createState() => new _LivreState(this.m_isbn, this.m_info, this.m_livre);
+  _LivreState createState() => new _LivreState(this.m_isbn, this.m_info, this.m_livre, this.m_date);
 }
 
 
@@ -64,9 +67,10 @@ class _LivreState extends State<Livre>{
   String s_ISBN = "Inconnu";
   String s_urlImage = "Inconnue";
   String s_synopsis = "Pas disponible";
+  DateTime s_dateEmprunt = DateTime.now();
 
   // constructeurs du state
-  _LivreState(String isbn, bool info, DataLivre livre){
+  _LivreState(String isbn, bool info, DataLivre livre, DateTime date){
     this.s_info = info;
     // si on affiche pour ajouter <=> on connait pas les données mais juste l'isbn et info = false
     if (!info) {
@@ -82,6 +86,7 @@ class _LivreState extends State<Livre>{
         print("On veut les infos d'un livre dont le isbn donne un résultat via l'API");
         this.s_info = info;
         this.s_ISBN = isbn;
+        this.s_dateEmprunt = date;
         getInfo();
       }
       else {
@@ -90,6 +95,7 @@ class _LivreState extends State<Livre>{
         this.s_titre = livre.data_titre;
         this.s_auteur = livre.data_auteur;
         this.s_datePublication = livre.data_datePublication;
+        this.s_dateEmprunt = livre.data_dateAjout;
         this.s_editeur = livre.data_editeur;
         this.s_ISBN = "inconnu";
         this.s_urlImage = livre.data_urlImage;
@@ -147,15 +153,17 @@ class _LivreState extends State<Livre>{
                                 // les deux "" devant titre et auteur servent juste à éviter un bug
                                 // si le titre ou l'auteur ne sont pas trouvé (très rare je suis daccord...)
                                 // alors l'appli crash psq le widget Text a besoin de data pour s'instancier
-                                new TextePerso(""+this.s_titre, fontWeight: FontWeight.bold),
+                                new TextePerso("" + this.s_titre, fontWeight: FontWeight.bold),
                                 new Container(height: 10.0,),
-                                new TextePerso(""+this.s_auteur),
+                                new TextePerso("" + this.s_auteur),
                                 new Container(height: 7.0,),
-                                new TextePerso("Date de publication: "+this.s_datePublication),
+                                new TextePerso("Date de publication: " + this.s_datePublication),
                                 new Container(height: 7.0,),
-                                new TextePerso("Editeur: "+this.s_editeur),
+                                new TextePerso("Date d'emprunt: " + DateFormat('yyyy-MM-dd HH:mm:ss').format(s_dateEmprunt)),
                                 new Container(height: 7.0,),
-                                new TextePerso("ISBN: "+this.s_ISBN),
+                                new TextePerso("Editeur: " + this.s_editeur),
+                                new Container(height: 7.0,),
+                                new TextePerso("ISBN: " + this.s_ISBN),
                               ],
                             )
                         ),
