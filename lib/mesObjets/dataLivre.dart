@@ -31,8 +31,6 @@ class DataLivre {
     this.data_lu = lu;
     this.data_envie = envie;
     this.data_dateAjout = dateAjout;
-
-
   }
 
   Map<String, dynamic> toJson() =>

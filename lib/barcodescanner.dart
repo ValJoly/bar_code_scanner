@@ -36,14 +36,15 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
   // liste des livres
   List<DataLivre> listDataLivre =[];  // objet Livre qui stockent les données
+  List<DataLivre> listDataEnvie =[];  // objet Livre (envie) qui stockent les données
   List<Widget> listCardLivre = [];    // widgets contenus dans le liste view de l'onglet BU et fav
   List<Widget> listCardEnvie = [];    // widgets contenus dans le liste view de l'onglet envie
 
 
   // liste des string pour la AppBar selon l'onglet selectionné
-  List<String> listString = ["Ma Biblihothèque", "Mes Favoris", "Mes Envies"];
+  List<String> listString = ["Ma Biblihothèque", "Mes Envies"];
   // liste des couleurs pour les différents volets
-  List<Color> listColor = [Colors.green, Colors.green, Colors.amber];
+  List<Color> listColor = [Colors.green, Colors.amber];
 
 
   // fonction lancée au lancement de la vue principale
@@ -98,13 +99,14 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       // on instancie un objet avec les infos
       DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
       // on l'ajoute aux données
-      listDataLivre.add(monLivre);
       // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
       if(result["Envie"]){
         listCardEnvie.add(new CardLivre(monLivre));
+        listDataEnvie.add(monLivre);
       }
       else {
         listCardLivre.add(new CardLivre(monLivre));
+        listDataLivre.add(monLivre);
       }
     });
 
@@ -124,6 +126,9 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                 child: new Column(
                   children: [
                     new TextePerso("Vous pouvez naviguer entre les 3 volets pour voir les livres que vous avez ajoutés.", textAlign: TextAlign.justify,),
+                    new Divider(height: 10),
+                    new Container(height: 20.0,),
+                    new TextePerso("Pour scanner des livres appuyez sur le bouton + ou rester appuyé dessus pour ajouter un livre manuellement.", textAlign: TextAlign.justify,),
                     new Divider(height: 10),
                     new Row(children: [ new Container(width: 10.0,),new Icon(Icons.add, color: Colors.green,), new TextePerso("    Ajouter un livre")],),
                     new Container(height: 20.0,),
@@ -154,36 +159,48 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
   // fonction de trie pour l'onglet bibliothèque
   void trier(int option){
     // le tableau a trier selon le volet selectionné
-    List<Widget> aTrier;
-    if(selectedIndex == 0 || selectedIndex == 1){
-      aTrier = this.listCardLivre;
+    List<Widget> card;
+    List<DataLivre> livre;
+    if(selectedIndex == 0){
+      card = this.listCardLivre;
+      livre = this.listDataLivre;
     }
     else {
-      aTrier = this.listCardEnvie;
+      card = this.listCardEnvie;
+      livre = this.listDataEnvie;
     }
     // lancement du tri
     setState(() {
       // ajouter recement
       if(option == 0) {
-        aTrier.sort( ( a, b ) {
+        card.sort( ( a, b ) {
           return -(a as CardLivre).cl_livre.data_dateAjout.compareTo((b as CardLivre).cl_livre.data_dateAjout);
+        });
+        livre.sort( ( a, b ) {
+          return -(a.data_dateAjout.compareTo(b.data_dateAjout));
         });
         print("Trier: Ajouter recement");
         // par titre
       } else if(option == 1){
-        aTrier.sort( ( a, b ) {
+          card.sort( ( a, b ) {
           return (a as CardLivre).cl_livre.data_titre.toString().toLowerCase().compareTo((b as CardLivre).cl_livre.data_titre.toString().toLowerCase());
+        });
+        livre.sort( ( a, b ) {
+          return a.data_titre.toString().toLowerCase().compareTo(b.data_titre.toString().toLowerCase());
         });
         print("Trier: Par titre");
         // auteur par ordre alphabéthique
       } else if(option == 2){
-        aTrier.sort( ( a, b) {
+        card.sort( ( a, b) {
           return (a as CardLivre).cl_livre.data_auteur.toString().toLowerCase().compareTo((b as CardLivre).cl_livre.data_auteur.toString().toLowerCase());
+        });
+        livre.sort( ( a, b) {
+          return a.data_auteur.toString().toLowerCase().compareTo(b.data_auteur.toString().toLowerCase());
         });
         print("Trier: Par auteur");
         // livres lus
       } else if(option == 3){
-        aTrier.sort( ( a, b ) {
+        card.sort( ( a, b ) {
           if(!(a as CardLivre).cl_livre.data_lu && (b as CardLivre).cl_livre.data_lu){
             return 1;
           }
@@ -192,20 +209,41 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
           }
           return 0;
         });
+        livre.sort( ( a, b ) {
+          if(!a.data_lu && b.data_lu){
+            return 1;
+          }
+          if(a.data_lu && !b.data_lu){
+            return -1;
+          }
+          return 0;
+        });
         print("Trier: Si lu ou pas");
         // inverse
       } else if(option == 4){
-        aTrier.sort( ( a, b ) {
+        card.sort( ( a, b ) {
+          return 1;
+        });
+        livre.sort( ( a, b ) {
           return 1;
         });
         print("Trier: Ordre inverse");
         // met les favoris au dessus
       } else if(option == 5){
-        aTrier.sort( ( a, b ) {
+        card.sort( ( a, b ) {
           if(!(a as CardLivre).cl_livre.data_favori && (b as CardLivre).cl_livre.data_favori){
             return 1;
           }
           if((a as CardLivre).cl_livre.data_favori && !(b as CardLivre).cl_livre.data_favori){
+            return -1;
+          }
+          return 0;
+        });
+        livre.sort( ( a, b ) {
+          if(!a.data_favori && b.data_favori){
+            return 1;
+          }
+          if(a.data_favori && !b.data_favori){
             return -1;
           }
           return 0;
@@ -230,9 +268,6 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
     print("Début build barcodeScanner");
 
-    // a chaque début du build on doit recompter le nombre de favoris pour donner la longueur de cette liste au listeView du volet favori
-    this.nbrFavoris;
-
 
     // listes des widgets de la bottomBar
     List<Widget> widgetList = <Widget>[
@@ -254,7 +289,16 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         title: new Text("Voir les détails"),
                         onPressed: (){
                           Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
-                            return new Livre(listDataLivre[index].data_ISBN, true);
+                            Livre retour;
+                            // isbn = -1 <=> livre ajouter à la main
+                            if (listDataLivre[index].data_ISBN == "-1") {
+                              retour = new Livre.livreAjouterManuellement(listDataLivre[index]);
+                            }
+                            // sinon on relance les détails
+                            else {
+                              retour = new Livre(listDataLivre[index].data_ISBN, true);
+                            }
+                            return retour;
                           }));
                         },
                         trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
@@ -263,7 +307,8 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                       title: new Text("Ajouter / Supprimer comme lu"),
                       onPressed: (){
                         setState(() {
-                          (this.listCardLivre[index] as CardLivre).cl_livre.data_lu = !(this.listCardLivre[index] as CardLivre).cl_livre.data_lu;
+                          //(this.listCardLivre[index] as CardLivre).cl_livre.data_lu = !(this.listCardLivre[index] as CardLivre).cl_livre.data_lu;
+                          listDataLivre[index].data_favori = listDataLivre[index].data_favori; 
                         });
                         Scaffold.of(context).showSnackBar(new SnackBar(
                           content: (this.listCardLivre[index] as CardLivre).cl_livre.data_lu ? new Text("Marqué comme lu") : new Text("Marqué comme non lu") ,
@@ -278,19 +323,9 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                       title: new Text("Supprimer"),
                       onPressed: (){
                         setState(() {
-                          if((this.listCardLivre[index] as CardLivre).cl_livre.data_favori){
-                            nbrFavoris --;
-                          }
-                          // on save l'isbn avant
-                          String isbn = (this.listCardLivre[index] as CardLivre).cl_livre.data_ISBN;
                           // on supprime le Card livre
                           listCardLivre.removeAt(index);
-                          // on supprimer le dataLivre
-                          for(int i = 0; i < this.listDataLivre.length; i ++){
-                            if(this.listDataLivre[i].data_ISBN == isbn){
-                              this.listDataLivre.removeAt(i);
-                            }
-                          }
+                          listDataLivre.removeAt(index);
                         });
                       },
                       trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
@@ -301,53 +336,6 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               );
             },
           )
-        ),
-      ),
-      // les favoris
-      new Container(
-        key: Key(UniqueKey().toString()),
-        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-        child: this.nbrFavoris == 0 ? new Center(child: new TextePerso("Aucun favoris n'a été ajouté pour le moment", textScaleFactor: 1.6, textAlign: TextAlign.center,),): new Center(
-            child: ListView.builder(
-              itemCount: this.nbrFavoris,
-              itemBuilder: (context, index){
-                return new Container(
-                  padding: EdgeInsets.only(bottom: 10.0),
-                  child: new FocusedMenuHolder(
-                    menuItemExtent: 60.0,
-                    onPressed: (){},
-                    menuItems: <FocusedMenuItem> [
-                      new FocusedMenuItem(
-                          title: new Text("Voir les détails"),
-                          onPressed: (){
-                            Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
-                              return new Livre(listDataLivre[index].data_ISBN, true);
-                            }));
-                          },
-                          trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
-                      ),
-                      new FocusedMenuItem(
-                        title: new Text("Supprimer"),
-                        onPressed: (){
-                          setState(() {
-                            nbrFavoris --;
-                            String isbn = (this.listCardLivre[index] as CardLivre).cl_livre.data_ISBN;
-                            listCardLivre.removeAt(index);
-                            for(int i = 0; i < this.listDataLivre.length; i ++){
-                              if(this.listDataLivre[i].data_ISBN == isbn){
-                                this.listDataLivre.removeAt(i);
-                              }
-                            }
-                          });
-                        },
-                        trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
-                      ),
-                    ],
-                    child: (this.listCardLivre.elementAt(index) as CardLivre).cl_livre.data_favori ? listCardLivre[index] : null,
-                  )
-                );
-              },
-            )
         ),
       ),
       // les envies
@@ -368,7 +356,16 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                             title: new Text("Voir les détails"),
                             onPressed: (){
                               Navigator.push(context, new MaterialPageRoute(builder:  (BuildContext context) {
-                                return new Livre((listCardEnvie[index] as CardLivre).cl_livre.data_ISBN, true);
+                                Livre retour;
+                                // isbn = -1 <=> livre ajouter à la main
+                                if ((listCardEnvie[index] as CardLivre).cl_livre.data_ISBN == "-1") {
+                                  retour = new Livre.livreAjouterManuellement(listDataEnvie[index]);
+                                }
+                                // sinon on relance les détails
+                                else {
+                                  retour = new Livre((listCardEnvie[index] as CardLivre).cl_livre.data_ISBN, true);
+                                }
+                                return retour;
                               }));
                             },
                             trailingIcon: new Icon(Icons.info_outline, color: Colors.green,)
@@ -377,13 +374,8 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                           title: new Text("Supprimer"),
                           onPressed: (){
                             setState(() {
-                              String isbn = (this.listCardEnvie[index] as CardLivre).cl_livre.data_ISBN;
                               listCardEnvie.removeAt(index);
-                              for(int i = 0; i < this.listDataLivre.length; i ++){
-                                if(this.listDataLivre[i].data_ISBN == isbn){
-                                  this.listDataLivre.removeAt(i);
-                                }
-                              }
+                              listDataEnvie.removeAt(index);
                             });
                           },
                           trailingIcon: new Icon(Icons.delete_outline, color: Colors.red,),
@@ -416,16 +408,6 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                   if(index == 0){
                     trier(0);
                   }
-                  else if(index == 1) {
-                    // on met les favoris au dessus
-                    trier(5);
-                    this.nbrFavoris = 0;
-                    for( int i = 0; i < this.listCardLivre.length; i++){
-                      if((this.listCardLivre.elementAt(i) as CardLivre).cl_livre.data_favori){
-                        this.nbrFavoris++;
-                      }
-                    }
-                  }
                   selectedIndex = index;
                 });
               },
@@ -433,10 +415,6 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home),
                   label: 'Bibliothèque',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite),
-                  label: 'Favoris',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.star),
@@ -492,13 +470,14 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
                         setState(() {
                           // on l'ajoute aux données
-                          listDataLivre.add(monLivre);
                           // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
                           if(result["Envie"]){
                             listCardEnvie.add(new CardLivre(monLivre));
+                            listDataEnvie.add(monLivre);
                           }
                           else {
                             listCardLivre.add(new CardLivre(monLivre));
+                            listDataLivre.add(monLivre);
                           }
                         });
                       },
