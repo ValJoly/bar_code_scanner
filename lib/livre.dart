@@ -145,7 +145,7 @@ class _LivreState extends State<Livre>{
                       ),
                       new Card(
                         child: new Container(
-                            height: MediaQuery.of(context).size.height * 0.25,
+                            height: MediaQuery.of(context).size.height * 0.3,
                             margin: EdgeInsets.only(left: 8.0, top: 8.0),
                             child: new Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
