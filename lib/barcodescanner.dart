@@ -113,15 +113,21 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       // on instancie un objet avec les infos
       DataLivre monLivre = new DataLivre(result["Titre"], result["Auteur"], result["DatePublication"], result["Editeur"], result["ISBN"], result["UrlImage"], result["Synopsis"], result["Lu"], result["Envie"], DateTime.now());
       // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
-      if(result["Envie"]){
-        listCardEnvie.add(new CardLivre(monLivre));
-        listDataEnvie.add(monLivre);
-        saveBooks();
-      }
-      else {
-        listCardLivre.add(new CardLivre(monLivre));
-        listDataLivre.add(monLivre);
-        saveBooks();
+      // on check avant qu'il n'y est pas de doublon
+      if(!estUnDoublou(monLivre)){
+        // on check qu'il fasse pas partis de l'autre liste
+        if(!faitPartisDeLautreListe(monLivre)){
+          if(result["Envie"]){
+            listCardEnvie.add(new CardLivre(monLivre));
+            listDataEnvie.add(monLivre);
+            saveBooks();
+          }
+          else {
+            listCardLivre.add(new CardLivre(monLivre));
+            listDataLivre.add(monLivre);
+            saveBooks();
+          }
+        }
       }
     });
 
@@ -299,6 +305,131 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
       });
 
   }
+
+  // check si un livre est en doublon ou non avant de l'ajouter
+  bool estUnDoublou(DataLivre livre){
+    bool envie = livre.data_envie;
+    // on part du principe que ya pas de doublon
+    bool doublon  = false;
+    // on regarde dans quelle liste on va checker (envie ou livre)
+    List<DataLivre> aChecker;
+    if(envie){
+      aChecker = listDataEnvie;
+    }
+    else {
+      aChecker = listDataLivre;
+    }
+    // si isbn = -1 <=> le livre à été ajouté à la main
+    if(livre.data_ISBN == "-1"){
+      for(DataLivre dataLivre in aChecker){
+        // meme titre, meme auteur, meme editeur
+        if(dataLivre.data_titre == livre.data_titre && dataLivre.data_auteur == livre.data_auteur && dataLivre.data_editeur == livre.data_editeur){
+          doublon = true;
+        }
+      }
+    }
+    // sinon <=> livre scanné
+    else {
+      for(DataLivre dataLivre in aChecker){
+        // meme isbn
+        if(dataLivre.data_ISBN == livre.data_ISBN){
+          doublon = true;
+        }
+      }
+    }
+    // on affiche un message d'erreur si doublon
+    if(doublon) {
+      String message;
+      // si on voulait l'ajouter aux envies
+      if(envie){
+        message = "Nous somme désolés mais il semblerait que ce livre fasse déjà partis de votre liste d'envie.";
+      }
+      // sinon si on souhaitait l'ajouter à la bibliothèque
+      else {
+        message = "Nous somme désolés mais il semblerait que ce livre fasse déjà partis de votre bibliothèque.";
+      }
+      messageAlert(message);
+    }
+    // retour
+    return doublon;
+    }
+
+    // chack si un livre qu'on veut ajouter au envie fait pas déjà partis de la bibliothèque ou des envies
+    bool faitPartisDeLautreListe(DataLivre livre){
+      // on part du principe que non
+      bool faitPartisDeLautreListe = false;
+      List<DataLivre> lautreListe;
+      // si on veut ajouter le livre aux envie <=> lautre liste c'est la bibliothèque
+      if(livre.data_envie){
+        lautreListe = listDataLivre;
+      }
+      // inversement si on souhaite ajouter un livre à la bibliothèque alors l'autre c'est les envies
+      else {
+        lautreListe = listDataEnvie;
+      }
+      // pour un livre ajouter à la main
+      if(livre.data_ISBN == "-1"){
+        for(DataLivre dataLivre in lautreListe){
+          // meme titre, meme auteur, meme editeur
+          if(dataLivre.data_titre == livre.data_titre && dataLivre.data_auteur == livre.data_auteur && dataLivre.data_editeur == livre.data_editeur){
+            faitPartisDeLautreListe = true;
+          }
+        }
+      }
+      // pour les livres scannés
+      else {
+        for(DataLivre dataLivre in lautreListe){
+          // meme isbn
+          if(dataLivre.data_ISBN == livre.data_ISBN){
+            faitPartisDeLautreListe = true;
+          }
+        }
+      }
+      // si le livre qu'on souhaite ajouter fait partis de l'autre liste
+      if(faitPartisDeLautreListe){
+        String message;
+        // si on souhaitait l'ajouter aux envies
+        if(livre.data_envie){
+          message = "Nous somme désolés mais il semblerait que ce livre fasse déjà partis de votre bibliothèque.";
+        }
+        // sinon si on souhaitait l'ajouter à la bibliothèque
+        else {
+          message = "Nous somme désolés mais il semblerait que ce livre fasse déjà partis de vos envies. Pour le basculer de vos envies vers votre bibliothèque, rendez vous simplement dans l'onglet des envies, maintenez votre doigts sur le livre en question et cliquez sur Basculer";
+        }
+        messageAlert(message);
+      }
+      return faitPartisDeLautreListe;
+    }
+
+
+
+  // affiche l'aide
+  Future<Null> messageAlert(String message) async{
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return new SimpleDialog(
+            title: new TextePerso("Erreur", textScaleFactor: 1.5, fontWeight: FontWeight.bold,),
+            children: [
+              new Container(
+                padding: EdgeInsets.all(12.0),
+                child: new TextePerso(message, textAlign: TextAlign.justify,),
+              ),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  new Container(),
+                  new FlatButton(onPressed: (){Navigator.pop(context);},child: new TextePerso("Retour", textScaleFactor: 1.1)),
+                ],
+              )
+            ],
+          );
+        }
+    );
+  }
+
+
 
 
   @override
@@ -525,15 +656,20 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                         setState(() {
                           // on l'ajoute aux données
                           // et selon le choix de l'utilisateur on instancie un widget correspondant dans les envies ou dans la bibliothèque
-                          if(result["Envie"]){
-                            listCardEnvie.add(new CardLivre(monLivre));
-                            listDataEnvie.add(monLivre);
-                            saveBooks();
-                          }
-                          else {
-                            listCardLivre.add(new CardLivre(monLivre));
-                            listDataLivre.add(monLivre);
-                            saveBooks();
+                          if(!estUnDoublou(monLivre)){
+                            // on check qu'il fasse pas partis de l'autre liste
+                            if(!faitPartisDeLautreListe(monLivre)){
+                              if(result["Envie"]){
+                                listCardEnvie.add(new CardLivre(monLivre));
+                                listDataEnvie.add(monLivre);
+                                saveBooks();
+                              }
+                              else {
+                                listCardLivre.add(new CardLivre(monLivre));
+                                listDataLivre.add(monLivre);
+                                saveBooks();
+                              }
+                            }
                           }
                         });
                       },
