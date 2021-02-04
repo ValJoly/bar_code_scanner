@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:bar_code_scanner/ajouterLivreManuellement.dart';
 import 'package:bar_code_scanner/stat.dart';
@@ -16,6 +17,8 @@ import 'ajouterLivreManuellement.dart';
 import 'widgetsPerso/cardLivre.dart';
 import 'mesObjets/dataLivre.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:downloads_path_provider/downloads_path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 class BarCodeScanner extends StatefulWidget {
@@ -106,7 +109,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         MaterialPageRoute(builder: (context) => Livre(_scanBarcode, false, null))
     );
 
-    print("\n\n\n\n\n\n\n\n\n"+"$result");
+    print("\n\n\n\n\n\n\n\n\n" + "$result");
 
     setState(() {
       // Si l'utilisateur appuie sur terminer sur la vue Livre alors on a un resultat
@@ -300,6 +303,51 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
   }
 
+  Future<void> downloadJSON() async {
+
+    /*
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      setState(() {
+        Permission.storage.request();
+      });
+
+    }
+
+    Directory downloadsDirectory;
+
+    try {
+      downloadsDirectory = await DownloadsPathProvider.downloadsDirectory;
+    } on PlatformException {
+      print('Could not get the downloads directory');
+    }
+    File path = File(downloadsDirectory.path + '/myBooks.json');
+    print('chemin d\'acces -> ' + path.path);
+
+    if (!mounted) return;
+
+    path.writeAsString(json.encode(listDataLivre));
+    print('test');
+    */
+
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    }
+
+    DownloadsPathProvider.downloadsDirectory.then((mypath) async {
+      var dpath = mypath.path + '/myBooks.json';
+      File df = new File(dpath);
+
+      await df.writeAsString(json.encode(listDataLivre));
+      print("Export terminé.");
+    });
+
+
+
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -480,6 +528,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
               title: new Text(this.listString[this.selectedIndex], style: new TextStyle(color: Colors.white),),
               elevation: 10,
               actions: [
+                new IconButton(icon: new Icon(Icons.file_download), onPressed: downloadJSON, color: Colors.white,),
                 new IconButton(icon: new Icon(Icons.assessment_outlined), onPressed: voirStat, color: Colors.white),
                 new IconButton(icon: new Icon(Icons.help), onPressed: getHelp2, color: Colors.white),
                 // popup menu pour trier
@@ -547,6 +596,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
         )
     );
   }
+
 
 
 }
