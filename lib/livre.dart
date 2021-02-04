@@ -223,7 +223,7 @@ class _LivreState extends State<Livre>{
                     new TextePerso("Synopsis: ", fontWeight: FontWeight.bold, textScaleFactor: 1.2),
                     new Container(height: 5.0,),
                     new TextePerso(""+this.s_synopsis),
-                    new Container(height: 5.0,),
+                    new Container(height: 80.0,),
                   ],
                 ),
               ),
