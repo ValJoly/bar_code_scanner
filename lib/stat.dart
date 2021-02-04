@@ -97,8 +97,8 @@ class Stat extends StatelessWidget {
     ajourdhui = DateTime.now();
     DateTime temp = ajourdhui;
     for(int i = 0 ; i < listDataLivre.length ; i++){
-        if(data.elementAt(i).data_dateAjout.isBefore(temp)){
-          temp = data.elementAt(i).data_dateAjout;
+        if(listDataLivre.elementAt(i).data_dateAjout.isBefore(temp)){
+          temp = listDataLivre.elementAt(i).data_dateAjout;
         }
     }
     // circular 2 (en bas de la vue)

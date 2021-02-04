@@ -48,7 +48,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
 
 
   // liste des string pour la AppBar selon l'onglet selectionné
-  List<String> listString = ["Ma Biblihothèque", "Mes Envies"];
+  List<String> listString = ["Ma Bibliothèque", "Mes Envies"];
   // liste des couleurs pour les différents volets
   List<Color> listColor = [Colors.green, Colors.amber];
 
