@@ -69,7 +69,7 @@ class Stat extends StatelessWidget {
       // et à chaque jour on associe le nombre de livre qui ont été ajouté ce jour la
       // leplusVieux va nous servir de jour courant pour la compraraison
       DateTime jourEnCour = lePlusVieux;
-      for(int i = 0; i<nbrJour; i++){
+      for(int i = 0; i<nbrJour+1; i++){
         double nbrLivreAjouteCeJour = 0.0;
         // on compare tous les livres de la liste au jour en cours et on compte combien ont été ajouté ce jour la
         for (DataLivre livre in listDataLivre) {
