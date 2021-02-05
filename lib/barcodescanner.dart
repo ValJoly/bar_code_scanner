@@ -149,7 +149,7 @@ class _BarCodeScannerState extends State<BarCodeScanner> {
                     new TextePerso("Vous pouvez naviguer entre les 3 volets pour voir les livres que vous avez ajoutés.", textAlign: TextAlign.justify,),
                     new Divider(height: 10),
                     new Container(height: 20.0,),
-                    new TextePerso("Pour scanner des livres appuyez sur le bouton + ou rester appuyé dessus pour ajouter un livre manuellement.", textAlign: TextAlign.justify,),
+                    new TextePerso("Pour scanner des livres, appuyez sur le bouton + ou restez appuyé dessus pour ajouter un livre manuellement.", textAlign: TextAlign.justify,),
                     new Divider(height: 10),
                     new Row(children: [ new Container(width: 10.0,),new Icon(Icons.add, color: Colors.green,), new TextePerso("    Ajouter un livre")],),
                     new Container(height: 20.0,),

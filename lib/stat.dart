@@ -140,6 +140,7 @@ class Stat extends StatelessWidget {
                      new Card(
                        elevation: 20.0,
                        child: new Container(
+                         width: largeur*0.42,
                          padding: EdgeInsets.all(17.0),
                          child: new Column(
                            children: [
@@ -161,7 +162,7 @@ class Stat extends StatelessWidget {
                          new Card(
                            elevation: 20.0,
                            child: new Container(
-                             width: largeur*0.4,
+                             width: largeur*0.42,
                              padding: EdgeInsets.all(10.0),
                              child: new Column(
                                children: [
